@@ -102,7 +102,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .note{font-size:.78rem;color:var(--muted)}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:99px;font-size:.85rem;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none}
 .toast.show{opacity:1}
-.views{display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid var(--line)}
+.views{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:2px solid var(--line)}
 .view-btn{font:700 1rem var(--display);text-transform:uppercase;letter-spacing:.06em;background:none;border:0;color:var(--muted);padding:10px 0;margin-bottom:-2px;border-bottom:3px solid transparent;cursor:pointer}
 .view-btn[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
 .cal-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
@@ -145,6 +145,28 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 @keyframes wobble{0%,100%{transform:rotate(0)}25%{transform:rotate(-6deg)}75%{transform:rotate(6deg)}}
 .hop{animation:hop .7s ease}
 .wob{transform-origin:50px 86px;animation:wobble 1.6s ease-in-out infinite}
+.overall{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.overall-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.overall b{font:800 2rem var(--display);line-height:1}
+.phase-h{display:flex;align-items:baseline;gap:8px;margin-top:4px}
+.phase-h h2{font-size:1.1rem}
+.goal{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.goal summary{list-style:none;cursor:pointer;padding:12px 14px;display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center}
+.goal summary::-webkit-details-marker{display:none}
+.goal summary h3{font-size:1.08rem;font-weight:700;min-width:0}
+.goal summary .cnt{font:700 .9rem var(--display);color:var(--muted)}
+.goal summary .bar{grid-column:1/-1}
+.goal.complete summary .cnt{color:var(--good)}
+.goal.complete .bar i{background:var(--good)}
+.tasks{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.task{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;padding:10px 14px;border-top:1px solid var(--line);cursor:pointer;font-size:.92rem}
+.task:first-child{border-top:0}
+.task input{appearance:none;-webkit-appearance:none;width:22px;height:22px;margin:0;border:2px solid var(--line);border-radius:7px;background:var(--bg);display:grid;place-items:center;cursor:pointer}
+.task input:checked{background:var(--good);border-color:var(--good)}
+.task input:checked::after{content:"";width:6px;height:11px;border:solid var(--surface);border-width:0 3px 3px 0;transform:translateY(-1px) rotate(45deg)}
+.task input:disabled{cursor:default}
+.task.done span{color:var(--muted);text-decoration:line-through}
+.auto{font-size:.68rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-left:6px;text-decoration:none;display:inline-block}
 @media (prefers-reduced-motion:reduce){.hop,.wob{animation:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -177,6 +199,16 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
   <div class="views" role="tablist">
     <button class="view-btn" role="tab" id="vb-workout" aria-selected="true" data-view="workout">Workout</button>
     <button class="view-btn" role="tab" id="vb-cal" aria-selected="false" data-view="cal">Calendar</button>
+    <button class="view-btn" role="tab" id="vb-goals" aria-selected="false" data-view="goals">Goals</button>
+  </div>
+
+  <div id="view-goals" hidden style="display:flex;flex-direction:column;gap:12px">
+    <div class="overall">
+      <div class="overall-top"><div><div class="eyebrow">Reset plan</div><b class="num" id="gPct">0%</b></div><span class="note num" id="gCount">0 of 0 steps</span></div>
+      <div class="bar"><i id="gBar" style="width:0%"></i></div>
+      <div class="note">Phase 1 now. Move to the next phase when the current one feels like routine. Steps marked <span class="auto" style="margin:0">auto</span> tick themselves from your workouts.</div>
+    </div>
+    <div id="goalList" style="display:flex;flex-direction:column;gap:10px"></div>
   </div>
 
   <div id="view-cal" hidden style="display:flex;flex-direction:column;gap:14px">
@@ -518,12 +550,68 @@ function savePet(){
   try{localStorage.setItem(PET_KEY,JSON.stringify(pet))}catch(e){}
   if(mode==="db"&&col) col.doc("pet").set({name:pet.name}).catch(()=>{});
 }
-function renderAll(){renderHeader();renderPet();renderTabs();renderSession();renderHistory();renderCal()}
+// ---- Goals: the reset plan as a checklist ----
+const GOALS_KEY="ppl.goals.v1";
+const PHASES={1:"Phase 1 · Now",2:"Phase 2 · Around week 3",3:"Phase 3 · Once you're working"};
+const AUTO={
+  hatch:()=>doneList().length>0,
+  week3:()=>[...new Set(doneList().map(s=>mondayOf(s.date)))].some(m=>weekCount(m)>=3),
+  streak4:()=>bestStreak()>=4,
+  owlet:()=>streakDays()>=7
+};
+const GOALS=[
+  {id:"job",phase:1,title:"Get a job",tasks:["Update resume with the account manager role","Pick 2–3 target roles (account manager, sales, ad agency)","Set up job alerts on Indeed and LinkedIn","Apply to 2 jobs today","Hit 10 applications in week one","Message 3 past coworkers that you're looking","Prep \"tell me about yourself\" and \"why did you leave\"","Land a first interview","Accept an offer"]},
+  {id:"gym",phase:1,title:"Gym consistently",tasks:[{t:"Pick a plan: 3-day Push / Pull / Legs",done:true},{t:"Build the tracker app",done:true},{t:"Get the app on your home screen",done:true},{t:"First Push day: hatch Rivet",auto:"hatch"},{t:"Finish a week at 3/3",auto:"week3"},{t:"Reach Owlet (7-day streak)",auto:"owlet"},{t:"Hit a 4-week streak",auto:"streak4"},"Go up in weight on 3 exercises","Save your first backup"]},
+  {id:"alone",phase:1,title:"Doing things alone",tasks:["Go to the gym solo","Eat at a sit-down spot by yourself","Take a solo drive somewhere new after a 3/3 week","Go to a car meet by yourself"]},
+  {id:"schedule",phase:1,title:"Schedule + accountability",tasks:["Set a weekday shape: job search mornings, gym after","Same wake-up time every weekday","Pack your gym bag the night before","Do the Sunday check-in","Tell one friend your goals"]},
+  {id:"card",phase:2,title:"Pay off the $800 card",tasks:["Write down balance, interest rate, minimum","Set up autopay for the minimum","Pick a weekly extra payment amount","Card at $400","Card at $0"]},
+  {id:"money",phase:2,title:"Money habits + saving",tasks:["Track every purchase for 2 weeks","Pick 2 spending categories to cut","Open a separate savings account","Auto-transfer to savings each payday","Build a starter emergency fund"]},
+  {id:"cook",phase:2,title:"Start cooking again",tasks:["Pick 3 easy meals built around a protein","One grocery run a week with a list","Cook 2 dinners this week","Cook most weeknights"]},
+  {id:"car",phase:3,title:"Pay off the car",tasks:["Look up payoff amount, rate and monthly payment","Put extra toward it each month","Car paid off"]},
+  {id:"read",phase:3,title:"Read more",tasks:["Pick one book","Read 10 pages a day before bed","Finish the first book"]},
+  {id:"content",phase:3,title:"Make more car content",tasks:["Write down 5 video ideas","Pick a rhythm: one video every 2 weeks","Film and post the first one","Post 3 on schedule","Make more of whatever did best"]}
+];
+let goalState={};
+try{goalState=JSON.parse(localStorage.getItem(GOALS_KEY)||"{}")||{}}catch(e){}
+function saveGoals(){try{localStorage.setItem(GOALS_KEY,JSON.stringify(goalState))}catch(e){}}
+function taskInfo(g,i){
+  const raw=g.tasks[i], t=typeof raw==="string"?{t:raw}:raw, key=g.id+"-"+i;
+  const auto=t.auto&&AUTO[t.auto]?AUTO[t.auto]():null;
+  const checked=auto?true:(key in goalState?goalState[key]:!!t.done);
+  return {key,text:t.t,auto:!!t.auto,autoDone:!!auto,checked};
+}
+const openGoals=new Set(GOALS.filter(g=>g.phase===1).map(g=>g.id));
+function renderGoals(){
+  let all=0,done=0,html="",lastPhase=0;
+  GOALS.forEach(g=>{
+    const items=g.tasks.map((_,i)=>taskInfo(g,i));
+    const d=items.filter(x=>x.checked).length; all+=items.length; done+=d;
+    if(g.phase!==lastPhase){lastPhase=g.phase;html+=`<div class="phase-h"><h2>${PHASES[g.phase]}</h2></div>`}
+    const pct=Math.round(d/items.length*100);
+    html+=`<details class="goal${d===items.length?" complete":""}" data-goal="${g.id}"${openGoals.has(g.id)?" open":""}>
+      <summary><h3>${g.title}</h3><span class="cnt num">${d}/${items.length}</span><div class="bar"><i style="width:${Math.max(pct,3)}%"></i></div></summary>
+      <div class="tasks">${items.map(x=>`<label class="task${x.checked?" done":""}"><input type="checkbox" id="t-${x.key}" data-key="${x.key}" ${x.checked?"checked":""} ${x.autoDone?"disabled":""}><span>${x.text}${x.auto?'<span class="auto">auto</span>':""}</span></label>`).join("")}</div>
+    </details>`;
+  });
+  $("goalList").innerHTML=html;
+  const pct=all?Math.round(done/all*100):0;
+  $("gPct").textContent=pct+"%"; $("gBar").style.width=Math.max(pct,2)+"%";
+  $("gCount").textContent=`${done} of ${all} steps`;
+}
+function renderAll(){renderHeader();renderPet();renderTabs();renderSession();renderHistory();renderCal();if(!$("view-goals").hidden)renderGoals()}
 
 let tt;function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2200)}
 function setNote(m){$("syncNote").textContent=m}
 
 // events
+$("goalList").addEventListener("change",e=>{
+  const k=e.target.dataset.key; if(!k) return;
+  goalState[k]=e.target.checked; saveGoals();
+  const g=GOALS.find(x=>k.startsWith(x.id+"-"));
+  renderGoals();
+  if(g&&e.target.checked&&g.tasks.every((_,i)=>taskInfo(g,i).checked)) toast(`${g.title}: done. Huge.`);
+});
+$("goalList").addEventListener("toggle",e=>{const d=e.target.closest&&e.target.closest("details");if(!d)return;d.open?openGoals.add(d.dataset.goal):openGoals.delete(d.dataset.goal)},true);
 $("petArt").addEventListener("click",()=>{const a=$("petArt").firstElementChild;if(!a)return;a.classList.remove("hop");void a.getBoundingClientRect();a.classList.add("hop")});
 $("petNameRow").addEventListener("click",e=>{
   if(!e.target.closest("#renameBtn")) return;
@@ -538,7 +626,8 @@ document.querySelector(".views").addEventListener("click",e=>{
   const b=e.target.closest(".view-btn"); if(!b) return;
   const v=b.dataset.view;
   document.querySelectorAll(".view-btn").forEach(x=>x.setAttribute("aria-selected",String(x===b)));
-  $("view-workout").hidden=v!=="workout"; $("view-cal").hidden=v!=="cal";
+  $("view-workout").hidden=v!=="workout"; $("view-cal").hidden=v!=="cal"; $("view-goals").hidden=v!=="goals";
+  if(v==="goals") renderGoals();
   if(v==="cal") renderCal();
 });
 $("calPrev").addEventListener("click",()=>shiftMonth(-1));
@@ -579,7 +668,7 @@ if(navigator.storage&&navigator.storage.persist){navigator.storage.persist().cat
 
 // ---- Backup: logs live on this phone, so let people save and restore a copy ----
 $("exportBtn").addEventListener("click",()=>{
-  const data={app:"push-pull-legs",version:1,exported:new Date().toISOString(),sessions,pet};
+  const data={app:"push-pull-legs",version:1,exported:new Date().toISOString(),sessions,pet,goals:goalState};
   const blob=new Blob([JSON.stringify(data,null,1)],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`ppl-backup-${TODAY}.json`;
   document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
@@ -591,6 +680,7 @@ $("importFile").addEventListener("change",async e=>{
     const d=JSON.parse(await f.text());
     if(!d||typeof d.sessions!=="object") throw 0;
     sessions=Object.assign({},sessions,d.sessions); saveLocal();
+    if(d.goals&&typeof d.goals==="object"){goalState=Object.assign({},goalState,d.goals);saveGoals()}
     if(d.pet&&d.pet.name){pet=d.pet;try{localStorage.setItem(PET_KEY,JSON.stringify(pet))}catch(_){}}
     current=nextDay(); renderAll(); toast(`Restored ${Object.keys(d.sessions).length} sessions`);
   }catch(_){toast("That file isn't a Push Pull Legs backup")}
