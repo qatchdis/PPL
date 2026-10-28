@@ -7,4 +7,4 @@ A 3-day machine-based Push/Pull/Legs gym tracker that installs to your phone's h
 - Rivet the owl, who grows as the streak goes
 - Works offline; data stays on the phone (use Backup to save a copy)
 
-Live at https://qatchdis.github.io/ppl/
+Live at https://qatchdis.github.io/PPL/
