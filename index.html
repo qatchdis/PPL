@@ -238,7 +238,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
   <section style="display:flex;flex-direction:column;gap:12px">
     <div class="tabs" role="tablist" id="tabs"></div>
     <div class="session-head">
-      <div><div class="eyebrow" id="focus"></div></div>
+      <div style="min-width:0"><div class="eyebrow" id="focus"></div><div class="note" id="suggest"></div></div>
       <span class="pill" id="status">Not started</span>
     </div>
     <div id="exercises" style="display:flex;flex-direction:column;gap:10px"></div>
@@ -358,7 +358,17 @@ async function writeDoc(s){
   if(again) writeDoc(sessions[s.id]);
 }
 
-function doneList(){return Object.values(sessions).filter(s=>s.done).sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:(b.finishedAt||0)-(a.finishedAt||0))}
+// A session counts once you log anything in it (a checked set, or weight + reps you entered), or tap Finish.
+function isLogged(s){return !!s&&(!!s.done||(!!s.touched&&Object.values(s.sets||{}).flat().some(x=>x.ok||(x.w!==""&&x.r!==""))))}
+function doneList(){return Object.values(sessions).filter(isLogged).sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:(b.finishedAt||b.lastAt||0)-(a.finishedAt||a.lastAt||0))}
+function suggestDay(){const d=doneList().filter(s=>s.date<TODAY);return d.length?ORDER[(ORDER.indexOf(d[0].day)+1)%3]:"push"}
+function refreshCounts(){renderHeader();renderPet();renderCal();if(!$("view-goals").hidden)renderGoals();renderHint()}
+function renderHint(){
+  const s=sessions[sid(current)], sug=suggestDay(), el=$("suggest");
+  if(isLogged(s)) el.textContent=`Logging ${PLAN[current].name} today. This counts toward your week.`;
+  else if(current!==sug) el.textContent=`Suggested today: ${PLAN[sug].name}. Doing ${PLAN[current].name} instead? Log it here and it counts.`;
+  else el.textContent=`Suggested today: ${PLAN[sug].name}.`;
+}
 function lastFor(day,exId,excludeId){
   for(const s of doneList()){ if(s.day===day && s.id!==excludeId && s.sets && s.sets[exId]) return s.sets[exId]; }
   return null;
@@ -411,6 +421,7 @@ function setsSummary(arr){return arr.filter(x=>x.w!==""||x.r!=="").map(x=>x.r||"
 function renderSession(){
   const s=getSession(current);
   $("focus").textContent=PLAN[current].focus;
+  renderHint();
   const total=PLAN[current].ex.reduce((a,e)=>a+e.sets,0);
   const ok=Object.values(s.sets).flat().filter(x=>x.ok).length;
   const st=$("status");
@@ -635,12 +646,15 @@ $("calNext").addEventListener("click",()=>shiftMonth(1));
 $("tabs").addEventListener("click",e=>{const b=e.target.closest(".tab");if(!b)return;current=b.dataset.day;renderTabs();renderSession()});
 $("exercises").addEventListener("input",e=>{
   const el=e.target; if(!el.dataset.k) return;
-  const s=getSession(current); s.sets[el.dataset.ex][+el.dataset.i][el.dataset.k]=el.value; persist(s);
+  const s=getSession(current); const was=isLogged(s);
+  s.sets[el.dataset.ex][+el.dataset.i][el.dataset.k]=el.value; s.touched=true; s.lastAt=Date.now(); persist(s);
+  if(was!==isLogged(s)) refreshCounts();
 });
 $("exercises").addEventListener("click",e=>{
   const b=e.target.closest(".chk"); if(!b) return;
-  const s=getSession(current); const x=s.sets[b.dataset.ex][+b.dataset.i];
-  x.ok=!x.ok; persist(s); b.setAttribute("aria-pressed",String(x.ok));
+  const s=getSession(current); const x=s.sets[b.dataset.ex][+b.dataset.i]; const was=isLogged(s);
+  x.ok=!x.ok; s.touched=true; s.lastAt=Date.now(); persist(s); b.setAttribute("aria-pressed",String(x.ok));
+  if(was!==isLogged(s)) refreshCounts();
   const total=PLAN[current].ex.reduce((a,e)=>a+e.sets,0);
   const ok=Object.values(s.sets).flat().filter(y=>y.ok).length;
   if(!s.done){$("status").textContent=ok?`${ok}/${total} sets`:"Not started"}
