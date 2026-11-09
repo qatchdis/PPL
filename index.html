@@ -142,9 +142,14 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .note{font-size:.78rem;color:var(--muted)}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:99px;font-size:.85rem;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none}
 .toast.show{opacity:1}
-.views{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:2px solid var(--line)}
-.view-btn{font:700 1rem var(--display);text-transform:uppercase;letter-spacing:.06em;background:none;border:0;color:var(--muted);padding:10px 0;margin-bottom:-2px;border-bottom:3px solid transparent;cursor:pointer}
-.view-btn[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.views{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-bottom:2px solid var(--line)}
+.views{position:relative}
+.view-btn{font:700 clamp(.82rem,3.9vw,1rem) var(--display);text-transform:uppercase;letter-spacing:.02em;white-space:nowrap;min-width:0;background:none;border:0;color:var(--muted);padding:10px 0 12px;cursor:pointer;transition:color .3s ease;-webkit-tap-highlight-color:transparent}
+.view-btn[aria-selected="true"]{color:var(--ink)}
+.view-ind{position:absolute;left:0;bottom:-2px;height:3px;width:25%;pointer-events:none;transform:translateX(calc(var(--i,2) * 100%));transition:transform .45s cubic-bezier(.22,1,.36,1);will-change:transform}
+.view-ind::before{content:"";position:absolute;left:14%;right:14%;top:0;bottom:0;border-radius:3px;background:var(--accent);transition:transform .45s cubic-bezier(.22,1,.36,1)}
+.views.moving .view-ind::before{transform:scaleX(1.25)}
+@media (prefers-reduced-motion:reduce){.view-ind,.view-ind::before,.view-btn{transition:none}}
 .cal-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .cal-nav{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:1.2rem;cursor:pointer}
 .cal-nav:disabled{opacity:.35;cursor:default}
@@ -236,7 +241,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
     </div>
   </section>
 
-  <div class="views" role="tablist">
+  <div class="views" role="tablist" id="views">
+    <span class="view-ind" aria-hidden="true"></span>
     <button class="view-btn" role="tab" id="vb-goals" aria-selected="false" data-view="goals">Goals</button>
     <button class="view-btn" role="tab" id="vb-stretch" aria-selected="false" data-view="stretch">Stretch</button>
     <button class="view-btn" role="tab" id="vb-workout" aria-selected="true" data-view="workout">Workout</button>
@@ -862,6 +868,13 @@ let tt;function toast(m){const t=$("toast");t.textContent=m;t.classList.add("sho
 function setNote(m){$("syncNote").textContent=m}
 
 // events
+let indT;
+function moveInd(anim){
+  const tabs=[...document.querySelectorAll(".view-btn")], i=Math.max(0,tabs.findIndex(x=>x.getAttribute("aria-selected")==="true"));
+  const v=$("views"); v.style.setProperty("--i",i);
+  if(anim){v.classList.add("moving");clearTimeout(indT);indT=setTimeout(()=>v.classList.remove("moving"),220)}
+}
+moveInd(false);
 $("stStart").addEventListener("click",startStretch);
 $("stMark").addEventListener("click",()=>{logStretch();renderStretch();renderCal();toast("Stretch logged for today")});
 $("pPause").addEventListener("click",()=>{pl.paused=!pl.paused;$("pPause").textContent=pl.paused?"Resume":"Pause"});
@@ -913,6 +926,7 @@ document.querySelector(".views").addEventListener("click",e=>{
   const b=e.target.closest(".view-btn"); if(!b) return;
   const v=b.dataset.view;
   document.querySelectorAll(".view-btn").forEach(x=>x.setAttribute("aria-selected",String(x===b)));
+  moveInd(true);
   $("view-workout").hidden=v!=="workout"; $("view-cal").hidden=v!=="cal"; $("view-goals").hidden=v!=="goals"; $("view-stretch").hidden=v!=="stretch";
   if(v==="stretch") renderStretch();
   if(v==="goals") renderGoals();
