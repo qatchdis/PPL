@@ -107,6 +107,32 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .rem-btns{display:flex;flex-direction:column;gap:8px}
 .rem-btns .primary{font-size:1rem;padding:12px}
 .rem-btns a.ghost{text-align:center;text-decoration:none;display:block;padding:11px 12px}
+.st-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.st-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.st-top b{display:block;font:800 1.6rem var(--display);line-height:1;text-transform:uppercase}
+.st-meta{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;color:var(--muted)}
+.st-list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
+.st-item{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:11px 14px;border-top:1px solid var(--line)}
+.st-item:first-child{border-top:0}
+.st-item b{font-family:var(--display);font-size:1.05rem;text-transform:uppercase;letter-spacing:.02em;min-width:0}
+.st-item .dur{font:700 .9rem var(--display);color:var(--accent);white-space:nowrap}
+.st-item .cue{grid-column:1/-1;font-size:.85rem;color:var(--muted)}
+.st-item a{grid-column:1/-1;font-size:.78rem;font-weight:600;color:var(--accent);text-decoration:none;justify-self:start}
+.player{background:var(--surface);border:2px solid var(--accent);border-radius:18px;padding:18px 16px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.player .step{font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.player h2{font-size:1.7rem;text-transform:uppercase;line-height:1.05}
+.player .side{font:700 1rem var(--display);color:var(--accent);text-transform:uppercase;letter-spacing:.06em;min-height:1.2em}
+.ring{width:170px;height:170px;position:relative;max-width:100%}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .trk{stroke:var(--line);fill:none}
+.ring .bar2{stroke:var(--accent);fill:none;stroke-linecap:round;transition:stroke-dashoffset .25s linear}
+.ring .t{position:absolute;inset:0;display:grid;place-items:center;font:800 3rem var(--display);font-variant-numeric:tabular-nums}
+.player .cue{font-size:.95rem;max-width:34ch}
+.player .next{font-size:.8rem;color:var(--muted)}
+.pctl{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:8px;width:100%}
+.pctl button{font:700 1rem var(--display);text-transform:uppercase;letter-spacing:.04em;border-radius:12px;padding:12px 6px;cursor:pointer;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.pctl .main{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.day.st::after{content:"";position:absolute;bottom:3px;left:50%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:currentColor;opacity:.75}
 .ghost{font:600 .85rem var(--body);border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:9px;padding:7px 12px;cursor:pointer}
 .hist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
 .hrow{display:grid;grid-template-columns:1fr auto auto;gap:12px;padding:11px 14px;border-top:1px solid var(--line);align-items:center;font-size:.9rem}
@@ -116,7 +142,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .note{font-size:.78rem;color:var(--muted)}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:99px;font-size:.85rem;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none}
 .toast.show{opacity:1}
-.views{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:2px solid var(--line)}
+.views{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:2px solid var(--line)}
 .view-btn{font:700 1rem var(--display);text-transform:uppercase;letter-spacing:.06em;background:none;border:0;color:var(--muted);padding:10px 0;margin-bottom:-2px;border-bottom:3px solid transparent;cursor:pointer}
 .view-btn[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
 .cal-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
@@ -214,6 +240,32 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
     <button class="view-btn" role="tab" id="vb-workout" aria-selected="true" data-view="workout">Workout</button>
     <button class="view-btn" role="tab" id="vb-cal" aria-selected="false" data-view="cal">Calendar</button>
     <button class="view-btn" role="tab" id="vb-goals" aria-selected="false" data-view="goals">Goals</button>
+    <button class="view-btn" role="tab" id="vb-stretch" aria-selected="false" data-view="stretch">Stretch</button>
+  </div>
+
+  <div id="view-stretch" hidden style="display:flex;flex-direction:column;gap:14px">
+    <div class="st-card" id="stIntro">
+      <div class="st-top">
+        <div><div class="eyebrow">Morning stretch</div><b id="stLen">7 min</b></div>
+        <span class="pill" id="stStatus">Not yet today</span>
+      </div>
+      <div class="st-meta"><span class="num" id="stWeek">0 this week</span><span class="num" id="stStreak">0-day streak</span><span>No equipment, just a floor</span></div>
+      <button class="primary" id="stStart">Start stretching</button>
+      <button class="ghost" id="stMark">Already stretched today? Mark it done</button>
+    </div>
+    <div class="player" id="stPlayer" hidden>
+      <div class="step num" id="pStep"></div>
+      <h2 id="pName"></h2>
+      <div class="side" id="pSide"></div>
+      <div class="ring"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="44" stroke-width="8"/><circle class="bar2" id="pBar" cx="50" cy="50" r="44" stroke-width="8" stroke-dasharray="276.46" stroke-dashoffset="0"/></svg><div class="t num" id="pTime">30</div></div>
+      <div class="cue" id="pCue"></div>
+      <div class="next" id="pNext"></div>
+      <div class="pctl"><button id="pBack">Back</button><button class="main" id="pPause">Pause</button><button id="pSkip">Skip</button></div>
+      <button class="ghost" id="pStop">End routine</button>
+    </div>
+    <h2>The routine</h2>
+    <div class="st-list" id="stList"></div>
+    <div class="note">Move slowly and breathe. Stretch to mild tension, never pain. Stop any stretch that hurts.</div>
   </div>
 
   <div id="view-goals" hidden style="display:flex;flex-direction:column;gap:12px">
@@ -242,6 +294,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
       <span><i style="background:var(--ink)"></i>Pull</span>
       <span><i style="background:var(--good)"></i>Legs</span>
       <span><i style="background:var(--good-soft)"></i>Week hit 3/3</span>
+      <span><i style="background:var(--muted);border-radius:50%;width:7px;height:7px"></i>Stretched</span>
     </div>
     <div class="note" id="calNote">Outlined days are your planned lifts. Hit 3 workouts in a week to keep the streak going.</div>
   </div>
@@ -521,7 +574,7 @@ function renderCal(){
       const d=addDays(w,i), done=byDate[d], inMonth=d.slice(0,7)===calMonth;
       const plan=SCHEDULE[(i+1)%7]&&d>=TODAY&&!done;
       const day=done?done[0].day:"";
-      const cls=["day",inMonth?"":"out",d===TODAY?"today":"",plan?"plan":"",done?"done "+day:""].join(" ");
+      const cls=["day",inMonth?"":"out",d===TODAY?"today":"",plan?"plan":"",done?"done "+day:"",stretchDays.includes(d)?"st":""].join(" ");
       const label=done?`${fmtDate(d)}: ${done.map(x=>PLAN[x.day]?PLAN[x.day].name:x.day).join(" + ")}`:fmtDate(d);
       html+=`<div class="${cls}" title="${label}" aria-label="${label}"><span>${+d.slice(8)}</span>${done?`<span class="tag">${PLAN[day]?PLAN[day].name:""}</span>`:""}</div>`;
     }
@@ -699,12 +752,87 @@ function renderNudge(){
                    :`<div><b>Gym day</b><br>Planned for ${fmtTime(rem.time)}. Bag packed?</div>`;
   el.hidden=false;
 }
+// ---- Morning stretch: guided routine, logged by day ----
+const STRETCHES=[
+  {name:"Neck rolls",secs:30,cue:"Drop your chin and roll your head slowly side to side. Switch direction halfway.",q:"neck rolls stretch"},
+  {name:"Arm circles",secs:30,cue:"Arms out wide. Small circles that get bigger, then reverse.",q:"arm circles warm up"},
+  {name:"Cat-cow",secs:45,cue:"On hands and knees. Arch your back up, then let your belly drop. Move with your breath.",q:"cat cow stretch"},
+  {name:"Child's pose",secs:45,cue:"Knees wide, sit back on your heels, reach your arms forward and relax your back.",q:"child's pose stretch"},
+  {name:"Downward dog",secs:30,cue:"Hips up and back, heels toward the floor. Pedal your feet to loosen your calves.",q:"downward dog for beginners"},
+  {name:"Hip flexor lunge",secs:30,sides:true,cue:"Low lunge with your back knee down. Squeeze your glute and push your hips forward.",q:"kneeling hip flexor stretch"},
+  {name:"Hamstring fold",secs:30,cue:"Stand and fold forward with soft knees. Let your head and arms hang.",q:"standing forward fold hamstring stretch"},
+  {name:"Figure-4 glute",secs:30,sides:true,cue:"On your back, cross one ankle over the other knee and pull that leg toward your chest.",q:"figure 4 glute stretch"},
+  {name:"Chest opener",secs:30,cue:"Clasp your hands behind your back, squeeze your shoulder blades and lift your chest.",q:"standing chest opener stretch"},
+  {name:"Side bend",secs:30,sides:true,cue:"Stand tall, one arm overhead, and lean to the opposite side. Keep your hips still.",q:"standing side bend stretch"}
+];
+const STRETCH_KEY="ppl.stretch.v1";
+let stretchDays=[];
+try{const v=JSON.parse(localStorage.getItem(STRETCH_KEY)||"[]");if(Array.isArray(v))stretchDays=v}catch(e){}
+function saveStretch(){try{localStorage.setItem(STRETCH_KEY,JSON.stringify(stretchDays))}catch(e){}}
+const STEPS=STRETCHES.flatMap(x=>x.sides?[{...x,side:"Left side"},{...x,side:"Right side"}]:[{...x,side:""}]);
+const totalSecs=STEPS.reduce((a,x)=>a+x.secs,0);
+function stretchStreak(){let n=0,d=stretchDays.includes(TODAY)?TODAY:addDays(TODAY,-1);while(stretchDays.includes(d)){n++;d=addDays(d,-1)}return n}
+function renderStretch(){
+  $("stLen").textContent=`${Math.round(totalSecs/60)} min`;
+  const done=stretchDays.includes(TODAY);
+  $("stStatus").textContent=done?"Done today":"Not yet today"; $("stStatus").className="pill"+(done?" ok":"");
+  const mon=mondayOf(TODAY), wk=stretchDays.filter(d=>d>=mon&&d<=TODAY).length, sk=stretchStreak();
+  $("stWeek").textContent=`${wk} this week`; $("stStreak").textContent=`${sk}-day streak`;
+  $("stMark").hidden=done;
+  $("stStart").textContent=done?"Stretch again":"Start stretching";
+  $("stList").innerHTML=STRETCHES.map(x=>`<div class="st-item"><b>${x.name}</b><span class="dur num">${x.secs}s${x.sides?" each side":""}</span><span class="cue">${x.cue}</span><a href="https://www.youtube.com/results?search_query=${encodeURIComponent(x.q)}" target="_blank" rel="noopener">Watch how ↗</a></div>`).join("");
+}
+function logStretch(){if(!stretchDays.includes(TODAY)){stretchDays.push(TODAY);stretchDays.sort();saveStretch()}}
+let pl={i:0,left:0,paused:false,timer:null,wake:null};
+let actx=null;
+function beep(f,ms){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=f;g.gain.value=.12;o.connect(g);g.connect(actx.destination);o.start();o.stop(actx.currentTime+ms/1000)}catch(e){}}
+function buzz(p){try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
+function showStep(){
+  const x=STEPS[pl.i];
+  $("pStep").textContent=`Stretch ${pl.i+1} of ${STEPS.length}`;
+  $("pName").textContent=x.name; $("pSide").textContent=x.side; $("pCue").textContent=x.cue;
+  const nx=STEPS[pl.i+1]; $("pNext").textContent=nx?`Next: ${nx.name}${nx.side?" ("+nx.side.toLowerCase()+")":""}`:"Last one";
+  $("pBack").disabled=pl.i===0; drawTime();
+}
+function drawTime(){const x=STEPS[pl.i];$("pTime").textContent=Math.ceil(pl.left);$("pBar").style.strokeDashoffset=String(276.46*(1-pl.left/x.secs))}
+function tick(){
+  if(pl.paused) return;
+  pl.left-=.25;
+  if(pl.left<=3.01&&pl.left>2.75) beep(660,90);
+  if(pl.left<=0){
+    if(pl.i<STEPS.length-1){pl.i++;pl.left=STEPS[pl.i].secs;beep(880,180);buzz(150);showStep()}
+    else{finishStretch(true);return}
+  }
+  drawTime();
+}
+async function startStretch(){
+  pl={i:0,left:STEPS[0].secs,paused:false,timer:null,wake:null};
+  $("stIntro").hidden=true; $("stPlayer").hidden=false; $("pPause").textContent="Pause";
+  showStep(); beep(880,150);
+  clearInterval(pl.timer); pl.timer=setInterval(tick,250);
+  try{if(navigator.wakeLock)pl.wake=await navigator.wakeLock.request("screen")}catch(e){}
+  $("stPlayer").scrollIntoView({block:"start",behavior:"smooth"});
+}
+function finishStretch(completed){
+  clearInterval(pl.timer); pl.timer=null;
+  try{pl.wake&&pl.wake.release()}catch(e){}
+  $("stPlayer").hidden=true; $("stIntro").hidden=false;
+  if(completed){logStretch();beep(1046,300);buzz([120,80,120]);toast("Morning stretch done. Nice start to the day.")}
+  renderStretch(); renderCal();
+}
 function renderAll(){renderNudge();renderReminders();renderHeader();renderPet();renderTabs();renderSession();renderHistory();renderCal();if(!$("view-goals").hidden)renderGoals()}
 
 let tt;function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2200)}
 function setNote(m){$("syncNote").textContent=m}
 
 // events
+$("stStart").addEventListener("click",startStretch);
+$("stMark").addEventListener("click",()=>{logStretch();renderStretch();renderCal();toast("Stretch logged for today")});
+$("pPause").addEventListener("click",()=>{pl.paused=!pl.paused;$("pPause").textContent=pl.paused?"Resume":"Pause"});
+$("pSkip").addEventListener("click",()=>{if(pl.i<STEPS.length-1){pl.i++;pl.left=STEPS[pl.i].secs;showStep()}else finishStretch(true)});
+$("pBack").addEventListener("click",()=>{if(pl.i>0){pl.i--;pl.left=STEPS[pl.i].secs;showStep()}});
+$("pStop").addEventListener("click",()=>finishStretch(pl.i>=Math.floor(STEPS.length*.6)));
+document.addEventListener("visibilitychange",async()=>{if(!document.hidden&&pl.timer&&!pl.wake){try{pl.wake=await navigator.wakeLock.request("screen")}catch(e){}}});
 $("remDays").addEventListener("click",e=>{
   const b=e.target.closest(".dchip"); if(!b) return;
   const d=+b.dataset.d; rem.days=rem.days.includes(d)?rem.days.filter(x=>x!==d):[...rem.days,d];
@@ -742,7 +870,8 @@ document.querySelector(".views").addEventListener("click",e=>{
   const b=e.target.closest(".view-btn"); if(!b) return;
   const v=b.dataset.view;
   document.querySelectorAll(".view-btn").forEach(x=>x.setAttribute("aria-selected",String(x===b)));
-  $("view-workout").hidden=v!=="workout"; $("view-cal").hidden=v!=="cal"; $("view-goals").hidden=v!=="goals";
+  $("view-workout").hidden=v!=="workout"; $("view-cal").hidden=v!=="cal"; $("view-goals").hidden=v!=="goals"; $("view-stretch").hidden=v!=="stretch";
+  if(v==="stretch") renderStretch();
   if(v==="goals") renderGoals();
   if(v==="cal") renderCal();
 });
@@ -787,7 +916,7 @@ if(navigator.storage&&navigator.storage.persist){navigator.storage.persist().cat
 
 // ---- Backup: logs live on this phone, so let people save and restore a copy ----
 $("exportBtn").addEventListener("click",()=>{
-  const data={app:"push-pull-legs",version:1,exported:new Date().toISOString(),sessions,pet,goals:goalState};
+  const data={app:"push-pull-legs",version:1,exported:new Date().toISOString(),sessions,pet,goals:goalState,stretchDays};
   const blob=new Blob([JSON.stringify(data,null,1)],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`ppl-backup-${TODAY}.json`;
   document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
@@ -799,6 +928,7 @@ $("importFile").addEventListener("change",async e=>{
     const d=JSON.parse(await f.text());
     if(!d||typeof d.sessions!=="object") throw 0;
     sessions=Object.assign({},sessions,d.sessions); saveLocal();
+    if(Array.isArray(d.stretchDays)){stretchDays=[...new Set([...stretchDays,...d.stretchDays])].sort();saveStretch()}
     if(d.goals&&typeof d.goals==="object"){goalState=Object.assign({},goalState,d.goals);saveGoals()}
     if(d.pet&&d.pet.name){pet=d.pet;try{localStorage.setItem(PET_KEY,JSON.stringify(pet))}catch(_){}}
     current=nextDay(); renderAll(); toast(`Restored ${Object.keys(d.sessions).length} sessions`);
