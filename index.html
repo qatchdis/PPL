@@ -237,10 +237,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
   </section>
 
   <div class="views" role="tablist">
-    <button class="view-btn" role="tab" id="vb-workout" aria-selected="true" data-view="workout">Workout</button>
-    <button class="view-btn" role="tab" id="vb-cal" aria-selected="false" data-view="cal">Calendar</button>
     <button class="view-btn" role="tab" id="vb-goals" aria-selected="false" data-view="goals">Goals</button>
     <button class="view-btn" role="tab" id="vb-stretch" aria-selected="false" data-view="stretch">Stretch</button>
+    <button class="view-btn" role="tab" id="vb-workout" aria-selected="true" data-view="workout">Workout</button>
+    <button class="view-btn" role="tab" id="vb-cal" aria-selected="false" data-view="cal">Calendar</button>
   </div>
 
   <div id="view-stretch" hidden style="display:flex;flex-direction:column;gap:14px">
@@ -266,6 +266,20 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
     <h2>The routine</h2>
     <div class="st-list" id="stList"></div>
     <div class="note">Move slowly and breathe. Stretch to mild tension, never pain. Stop any stretch that hurts.</div>
+
+    <h2>Stretch reminder</h2>
+    <div class="rem">
+      <div>
+        <div class="eyebrow" style="margin-bottom:6px">Days</div>
+        <div class="days" id="stDays"></div>
+      </div>
+      <div class="rem-row"><label for="stTime">Reminder time</label><input type="time" id="stTime" value="07:30"></div>
+      <div class="rem-btns">
+        <button class="primary" id="stIcs">Add stretch reminder to phone calendar</button>
+        <a class="ghost" id="stGcal" href="#" target="_blank" rel="noopener">Add to Google Calendar ↗</a>
+      </div>
+      <div class="note">This adds only the stretch reminder, so your gym reminders won't double up. iPhone: open the downloaded file and tap Add All.</div>
+    </div>
   </div>
 
   <div id="view-goals" hidden style="display:flex;flex-direction:column;gap:12px">
@@ -820,7 +834,29 @@ function finishStretch(completed){
   if(completed){logStretch();beep(1046,300);buzz([120,80,120]);toast("Morning stretch done. Nice start to the day.")}
   renderStretch(); renderCal();
 }
-function renderAll(){renderNudge();renderReminders();renderHeader();renderPet();renderTabs();renderSession();renderHistory();renderCal();if(!$("view-goals").hidden)renderGoals()}
+function stretchRem(){return Object.assign({time:"07:30",days:[0,1,2,3,4,5,6]},rem.stretch||{})}
+function buildStretchIcs(){
+  const sr=stretchRem(), now=new Date().toISOString().replace(/[-:]/g,"").slice(0,15)+"Z", d=nextDateFor(sr.days);
+  const rule=sr.days.length===7?"RRULE:FREQ=DAILY":`RRULE:FREQ=WEEKLY;BYDAY=${sr.days.map(x=>ICSD[x]).join(",")}`;
+  return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//PPL//Stretch Reminder//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH",
+    "BEGIN:VEVENT",`UID:ppl-stretch-${Date.now()}@ppl`,`DTSTAMP:${now}`,`DTSTART:${stamp(d,sr.time)}`,`DTEND:${plusMin(d,sr.time,10)}`,rule,
+    "SUMMARY:Morning stretch (7 min)","DESCRIPTION:Open the PPL app and tap Stretch.",
+    "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:Morning stretch. 7 minutes and you're loose.","TRIGGER:PT0M","END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n")+"\r\n";
+}
+function downloadIcs(text,name){
+  const blob=new Blob([text],{type:"text/calendar"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
+  toast("Calendar file ready. Open it and tap Add All");
+}
+function renderStretchRem(){
+  const sr=stretchRem();
+  $("stDays").innerHTML=[1,2,3,4,5,6,0].map(d=>`<button class="dchip" id="sdchip-${d}" data-d="${d}" aria-pressed="${sr.days.includes(d)}">${DAYN[d].slice(0,2)}</button>`).join("");
+  $("stTime").value=sr.time;
+  const none=!sr.days.length; $("stIcs").disabled=none; $("stGcal").hidden=none;
+  if(!none) $("stGcal").href=gcalLink("Morning stretch (7 min)","Open the PPL app and tap Stretch.",nextDateFor(sr.days),sr.time,10,sr.days);
+}
+function renderAll(){renderStretchRem();renderNudge();renderReminders();renderHeader();renderPet();renderTabs();renderSession();renderHistory();renderCal();if(!$("view-goals").hidden)renderGoals()}
 
 let tt;function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2200)}
 function setNote(m){$("syncNote").textContent=m}
@@ -841,6 +877,13 @@ $("remDays").addEventListener("click",e=>{
 $("remTime").addEventListener("change",e=>{if(e.target.value){rem.time=e.target.value;saveRem();renderNudge();renderReminders()}});
 $("remNightTime").addEventListener("change",e=>{if(e.target.value){rem.nightTime=e.target.value;saveRem();renderReminders()}});
 $("remNight").addEventListener("change",e=>{rem.night=e.target.checked;saveRem();renderReminders()});
+$("stDays").addEventListener("click",e=>{
+  const b=e.target.closest(".dchip"); if(!b) return;
+  const sr=stretchRem(), d=+b.dataset.d; sr.days=sr.days.includes(d)?sr.days.filter(x=>x!==d):[...sr.days,d];
+  rem.stretch=sr; saveRem(); renderStretchRem();
+});
+$("stTime").addEventListener("change",e=>{if(e.target.value){const sr=stretchRem();sr.time=e.target.value;rem.stretch=sr;saveRem();renderStretchRem()}});
+$("stIcs").addEventListener("click",()=>downloadIcs(buildStretchIcs(),"stretch-reminder.ics"));
 $("remIcs").addEventListener("click",()=>{
   const blob=new Blob([buildIcs()],{type:"text/calendar"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="gym-reminders.ics";
