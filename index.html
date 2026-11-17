@@ -26,16 +26,16 @@ img{max-width:100%}
 /* Layout: single phone column like a gym clipboard; week strip, today's session, history. */
 :root{
   --bg:#EEF1F4; --surface:#FFFFFF; --ink:#141820; --muted:#5E6876; --line:#D6DCE3;
-  --accent:#D9480F; --accent-ink:#FFFFFF; --accent-soft:#FBE3D6; --good:#2B8A3E; --good-soft:#DDF2E1; --owl:#8A5A33; --owl-dark:#5E3B20; --owl-belly:#F3E2C6; --beak:#E8A33A; --eye:#FFFFFF; --egg:#EFE6D6; --egg-spot:#C9B79A;
+  --accent:#D9480F; --accent-ink:#FFFFFF; --accent-soft:#FBE3D6; --good:#2B8A3E; --good-soft:#DDF2E1; --c-routine:#6F7C90; --c-job:#B86E0A; --c-fitness:#D9480F; --c-study:#12806F; --c-project:#6A4BD1; --c-rest:#4566A0; --c-other:#7F8896; --owl:#8A5A33; --owl-dark:#5E3B20; --owl-belly:#F3E2C6; --beak:#E8A33A; --eye:#FFFFFF; --egg:#EFE6D6; --egg-spot:#C9B79A;
   --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
   --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0F1217; --surface:#181C23; --ink:#E9EDF2; --muted:#93A0B0; --line:#2A303A;
-  --accent:#FF7A3D; --accent-ink:#1A0D05; --accent-soft:#3A2116; --good:#5FCB72; --good-soft:#18301D; --owl:#B98252; --owl-dark:#7C5330; --owl-belly:#F0DCBB; --beak:#F2B04A; --eye:#FFFFFF; --egg:#E6DCCB; --egg-spot:#A8957A; color-scheme:dark}}
+  --accent:#FF7A3D; --accent-ink:#1A0D05; --accent-soft:#3A2116; --good:#5FCB72; --good-soft:#18301D; --c-routine:#9AA6BA; --c-job:#F0A43C; --c-fitness:#FF7A3D; --c-study:#3CC2B2; --c-project:#A28AF5; --c-rest:#7F9DD6; --c-other:#A3ACBA; --owl:#B98252; --owl-dark:#7C5330; --owl-belly:#F0DCBB; --beak:#F2B04A; --eye:#FFFFFF; --egg:#E6DCCB; --egg-spot:#A8957A; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0F1217; --surface:#181C23; --ink:#E9EDF2; --muted:#93A0B0; --line:#2A303A;
-  --accent:#FF7A3D; --accent-ink:#1A0D05; --accent-soft:#3A2116; --good:#5FCB72; --good-soft:#18301D; --owl:#B98252; --owl-dark:#7C5330; --owl-belly:#F0DCBB; --beak:#F2B04A; --eye:#FFFFFF; --egg:#E6DCCB; --egg-spot:#A8957A; color-scheme:dark}
+  --accent:#FF7A3D; --accent-ink:#1A0D05; --accent-soft:#3A2116; --good:#5FCB72; --good-soft:#18301D; --c-routine:#9AA6BA; --c-job:#F0A43C; --c-fitness:#FF7A3D; --c-study:#3CC2B2; --c-project:#A28AF5; --c-rest:#7F9DD6; --c-other:#A3ACBA; --owl:#B98252; --owl-dark:#7C5330; --owl-belly:#F0DCBB; --beak:#F2B04A; --eye:#FFFFFF; --egg:#E6DCCB; --egg-spot:#A8957A; color-scheme:dark}
 html,body{background:var(--bg)}
 body{color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 40px}
@@ -133,6 +133,56 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .pctl button{font:700 1rem var(--display);text-transform:uppercase;letter-spacing:.04em;border-radius:12px;padding:12px 6px;cursor:pointer;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
 .pctl .main{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .day.st::after{content:"";position:absolute;bottom:3px;left:50%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:currentColor;opacity:.75}
+.dy-head{display:flex;align-items:center;gap:8px}
+.dy-head .mid{flex:1;min-width:0}
+.dy-head h2{font-size:1.35rem}
+.nav-btn{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:1.2rem;cursor:pointer;flex:none}
+.dy-sum{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.dring{width:58px;height:58px;position:relative;flex:none}
+.dring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.dring circle{fill:none;stroke-width:6}
+.dring .tk{stroke:var(--bg)}
+.dring .br{stroke:var(--accent);stroke-linecap:round;transition:stroke-dashoffset .35s ease}
+.dring b{position:absolute;inset:0;display:grid;place-items:center;font:800 .8rem var(--display);font-variant-numeric:tabular-nums}
+.dy-sum .txt{min-width:0}
+.dy-sum .big{font:800 1.25rem var(--display);text-transform:uppercase}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px}
+.seg button{font:700 .95rem var(--display);text-transform:uppercase;letter-spacing:.03em;border:0;border-radius:9px;padding:8px;background:transparent;color:var(--muted);cursor:pointer}
+.seg button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+.blocks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.blk{--cat:var(--c-other);display:flex;gap:10px;align-items:stretch;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--cat);border-radius:14px;padding:10px 10px 10px 12px;min-width:0}
+.cat-routine{--cat:var(--c-routine)}.cat-job{--cat:var(--c-job)}.cat-fitness{--cat:var(--c-fitness)}.cat-study{--cat:var(--c-study)}.cat-project{--cat:var(--c-project)}.cat-rest{--cat:var(--c-rest)}
+.blk.now{box-shadow:0 0 0 2px var(--accent)}
+.blk.done,.blk.moved{background:var(--bg)}
+.blk.done .bt{text-decoration:line-through;color:var(--muted)}
+.blk.moved .bt{color:var(--muted)}
+.bchk{appearance:none;-webkit-appearance:none;flex:none;width:26px;height:26px;margin:2px 0 0;border:2px solid var(--line);border-radius:8px;background:var(--bg);display:grid;place-items:center;cursor:pointer}
+.bchk:checked{background:var(--good);border-color:var(--good)}
+.bchk:checked::after{content:"";width:6px;height:11px;border:solid var(--surface);border-width:0 3px 3px 0;transform:translateY(-1px) rotate(45deg)}
+.bchk:disabled{opacity:.4;cursor:default}
+.btime{flex:none;width:60px;display:flex;flex-direction:column;font-variant-numeric:tabular-nums;padding-top:3px}
+.btime b{font-size:.82rem}.btime span{font-size:.75rem;color:var(--muted)}
+.bbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;text-align:left;background:none;border:0;padding:2px 0;color:var(--ink);cursor:pointer;font:inherit}
+.bt{font-weight:700;overflow-wrap:anywhere}
+.bmeta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.75rem;color:var(--muted)}
+.bnote{font-size:.82rem;color:var(--muted);overflow-wrap:anywhere;white-space:pre-wrap}
+.bchip{font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:99px;background:var(--accent-soft);color:var(--accent)}
+.bside{display:flex;flex-direction:column;gap:6px;justify-content:center}
+.bside button{width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.bside button:disabled{opacity:.35}
+.linkbtn{border:0;background:none;color:var(--accent);font-weight:600;font-size:.82rem;padding:4px 0;cursor:pointer;align-self:flex-start}
+.dy-empty{border:1.5px dashed var(--line);border-radius:14px;padding:20px 16px;text-align:center;color:var(--muted)}
+.dy-tools{display:flex;flex-wrap:wrap;gap:8px}
+.dy-tools .primary{flex:1 1 100%}
+.dy-confirm{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.sheet-bg{position:fixed;inset:0;background:rgba(8,12,18,.45);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:520px;background:var(--surface);border-radius:20px 20px 0 0;padding:18px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:12px;max-height:92vh;overflow-y:auto}
+.fld{display:flex;flex-direction:column;gap:4px;min-width:0}
+.fld label{font-size:.8rem;font-weight:600;color:var(--muted)}
+.fld input,.fld select,.fld textarea{width:100%;min-height:44px;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:500 16px var(--body)}
+.fld textarea{min-height:70px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ferr{margin:0;color:var(--accent);font-size:.85rem}
 .ghost{font:600 .85rem var(--body);border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:9px;padding:7px 12px;cursor:pointer}
 .hist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
 .hrow{display:grid;grid-template-columns:1fr auto auto;gap:12px;padding:11px 14px;border-top:1px solid var(--line);align-items:center;font-size:.9rem}
@@ -142,11 +192,11 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .note{font-size:.78rem;color:var(--muted)}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:99px;font-size:.85rem;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none}
 .toast.show{opacity:1}
-.views{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-bottom:2px solid var(--line)}
+.views{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-bottom:2px solid var(--line)}
 .views{position:relative}
-.view-btn{font:700 clamp(.82rem,3.9vw,1rem) var(--display);text-transform:uppercase;letter-spacing:.02em;white-space:nowrap;min-width:0;background:none;border:0;color:var(--muted);padding:10px 0 12px;cursor:pointer;transition:color .3s ease;-webkit-tap-highlight-color:transparent}
+.view-btn{font:700 clamp(.7rem,3.2vw,.95rem) var(--display);text-transform:uppercase;letter-spacing:0;overflow:hidden;white-space:nowrap;min-width:0;background:none;border:0;color:var(--muted);padding:10px 0 12px;cursor:pointer;transition:color .3s ease;-webkit-tap-highlight-color:transparent}
 .view-btn[aria-selected="true"]{color:var(--ink)}
-.view-ind{position:absolute;left:0;bottom:-2px;height:3px;width:25%;pointer-events:none;transform:translateX(calc(var(--i,2) * 100%));transition:transform .45s cubic-bezier(.22,1,.36,1);will-change:transform}
+.view-ind{position:absolute;left:0;bottom:-2px;height:3px;width:20%;pointer-events:none;transform:translateX(calc(var(--i,3) * 100%));transition:transform .45s cubic-bezier(.22,1,.36,1);will-change:transform}
 .view-ind::before{content:"";position:absolute;left:14%;right:14%;top:0;bottom:0;border-radius:3px;background:var(--accent);transition:transform .45s cubic-bezier(.22,1,.36,1)}
 .views.moving .view-ind::before{transform:scaleX(1.25)}
 @media (prefers-reduced-motion:reduce){.view-ind,.view-ind::before,.view-btn{transition:none}}
@@ -244,9 +294,69 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
   <div class="views" role="tablist" id="views">
     <span class="view-ind" aria-hidden="true"></span>
     <button class="view-btn" role="tab" id="vb-goals" aria-selected="false" data-view="goals">Goals</button>
+    <button class="view-btn" role="tab" id="vb-daily" aria-selected="false" data-view="daily">Daily</button>
     <button class="view-btn" role="tab" id="vb-stretch" aria-selected="false" data-view="stretch">Stretch</button>
     <button class="view-btn" role="tab" id="vb-workout" aria-selected="true" data-view="workout">Workout</button>
     <button class="view-btn" role="tab" id="vb-cal" aria-selected="false" data-view="cal">Calendar</button>
+  </div>
+
+  <div id="view-daily" hidden style="display:flex;flex-direction:column;gap:14px">
+    <div class="dy-head">
+      <button class="nav-btn" id="dyPrev" aria-label="Previous day">‹</button>
+      <div class="mid"><div class="eyebrow" id="dyEyebrow">Today</div><h2 id="dyTitle">Your day</h2></div>
+      <button class="ghost" id="dyToday" hidden>Today</button>
+      <button class="nav-btn" id="dyNext" aria-label="Next day">›</button>
+    </div>
+    <div class="dy-sum" id="dySum">
+      <div class="dring" aria-hidden="true"><svg viewBox="0 0 58 58"><circle class="tk" cx="29" cy="29" r="25"/><circle class="br" id="dyRing" cx="29" cy="29" r="25" stroke-dasharray="157.08" stroke-dashoffset="157.08"/></svg><b id="dyPct">0%</b></div>
+      <div class="txt"><div class="big num" id="dyCount">0 of 0 done</div><div class="note" id="dyNextUp"></div></div>
+    </div>
+    <div class="seg" role="tablist">
+      <button role="tab" id="dySegDay" aria-selected="true">Day</button>
+      <button role="tab" id="dySegTpl" aria-selected="false">Template</button>
+    </div>
+    <div class="note" id="dyTplNote" hidden>Every new day starts from this template. Changing it doesn't touch days you've already started.</div>
+    <ol class="blocks" id="dyList"></ol>
+    <div class="dy-tools">
+      <button class="primary" id="dyAdd">+ Add block</button>
+      <button class="ghost" id="dyArrange">Arrange</button>
+      <button class="ghost" id="dySort">Sort by time</button>
+      <span id="dyDayTools" style="display:contents">
+        <button class="ghost" id="dyMove">Move unfinished to tomorrow</button>
+        <button class="ghost" id="dyReset">Reset to template</button>
+        <button class="ghost" id="dySaveTpl">Save day as template</button>
+      </span>
+    </div>
+    <div class="dy-confirm" id="dyConfirm" hidden>
+      <div id="dyConfirmText"></div>
+      <div class="dy-tools"><button class="primary" id="dyYes" style="flex:0 1 auto">Yes</button><button class="ghost" id="dyNo">Cancel</button></div>
+    </div>
+  </div>
+
+  <div class="sheet-bg" id="dySheetBg" hidden>
+    <form class="sheet" id="dySheet" novalidate>
+      <h2 id="dySheetTitle">Edit block</h2>
+      <div class="fld"><label for="dyfTitle">What</label><input id="dyfTitle" maxlength="80" autocomplete="off" placeholder="e.g. Job applications"></div>
+      <div class="two">
+        <div class="fld"><label for="dyfStart">Start</label><input id="dyfStart" type="time"></div>
+        <div class="fld"><label for="dyfEnd">End</label><input id="dyfEnd" type="time"></div>
+      </div>
+      <div class="fld"><label for="dyfCat">Type</label>
+        <select id="dyfCat"><option value="routine">Routine</option><option value="job">Job search</option><option value="fitness">Gym</option><option value="study">Study</option><option value="project">Portfolio</option><option value="rest">Wind-down</option><option value="other">Other</option></select>
+      </div>
+      <div class="fld"><label for="dyfNote">Notes</label><textarea id="dyfNote" maxlength="400" placeholder="Optional"></textarea></div>
+      <p class="ferr" id="dyfErr" hidden></p>
+      <div class="dy-tools">
+        <button class="primary" type="submit" style="flex:0 1 auto">Save</button>
+        <button class="ghost" type="button" id="dyfCancel">Cancel</button>
+        <span style="flex:1"></span>
+        <button class="ghost" type="button" id="dyfDelete" style="color:var(--accent)">Delete</button>
+      </div>
+      <div class="dy-confirm" id="dyfDelConfirm" hidden>
+        <div>Delete this block?</div>
+        <div class="dy-tools"><button class="primary" type="button" id="dyfDelYes" style="flex:0 1 auto">Delete</button><button class="ghost" type="button" id="dyfDelNo">Keep it</button></div>
+      </div>
+    </form>
   </div>
 
   <div id="view-stretch" hidden style="display:flex;flex-direction:column;gap:14px">
@@ -862,12 +972,157 @@ function renderStretchRem(){
   const none=!sr.days.length; $("stIcs").disabled=none; $("stGcal").hidden=none;
   if(!none) $("stGcal").href=gcalLink("Morning stretch (7 min)","Open the PPL app and tap Stretch.",nextDateFor(sr.days),sr.time,10,sr.days);
 }
+// ---- Daily: time-blocked checklist with a template (from Jay's Daily Plan) ----
+const DY_CATS={routine:"Routine",job:"Job search",fitness:"Gym",study:"Study",project:"Portfolio",rest:"Wind-down",other:"Other"};
+const DY_STARTER=[
+  {id:"t1",start:"07:00",end:"07:45",title:"Morning routine",cat:"routine",note:"Water, shower, breakfast. Pick today's top 3."},
+  {id:"t2",start:"08:00",end:"10:00",title:"Job applications",cat:"job",note:"Remote support, ops, onboarding and data roles."},
+  {id:"t3",start:"10:00",end:"10:30",title:"Resume tweaks and follow-ups",cat:"job",note:"Tailor the resume, follow up on last week's applications."},
+  {id:"t4",start:"11:00",end:"12:30",title:"Gym",cat:"fitness",note:"Push, pull or legs, whichever is next."},
+  {id:"t5",start:"12:30",end:"13:15",title:"Lunch",cat:"routine",note:""},
+  {id:"t6",start:"13:30",end:"15:00",title:"Study: SQL practice",cat:"study",note:"Data Analytics coursework, SQL and Excel."},
+  {id:"t7",start:"15:15",end:"16:30",title:"Portfolio project",cat:"project",note:"Build a data project to show employers."},
+  {id:"t8",start:"21:00",end:"21:30",title:"Wind-down",cat:"rest",note:"Plan tomorrow, screens off."}
+];
+const DY_KEY="ppl.daily.v1";
+let dyTpl=null, dyDays={};
+try{const v=JSON.parse(localStorage.getItem(DY_KEY)||"null");if(v){if(Array.isArray(v.tpl))dyTpl=v.tpl;if(v.days&&typeof v.days==="object")dyDays=v.days}}catch(e){}
+function saveDaily(){try{localStorage.setItem(DY_KEY,JSON.stringify({tpl:dyTpl,days:dyDays}))}catch(e){toast("Couldn't save. Your phone's storage may be full.")}}
+let dyView=TODAY, dyTab="day", dyArr=false, dyEditing=null, dyConfirmFn=null;
+const dyClone=v=>JSON.parse(JSON.stringify(v));
+const dyNewId=()=>"b"+Math.random().toString(36).slice(2,10);
+const dyMin=t=>{if(!t)return null;const [h,m]=t.split(":").map(Number);return h*60+m};
+const dyDur=(a,b)=>{const s=dyMin(a),e=dyMin(b);if(s==null||e==null||e<=s)return "";const m=e-s,h=Math.floor(m/60),r=m%60;return h?h+" h"+(r?" "+r+" min":""):r+" min"};
+const dySort=arr=>arr.sort((a,b)=>{const x=dyMin(a.start),y=dyMin(b.start);if(x==null&&y==null)return 0;if(x==null)return 1;if(y==null)return -1;return x-y});
+const tplItems=()=>dyTpl||DY_STARTER;
+const dayItems=k=>dyDays[k]?dyDays[k]:tplItems().map(i=>({...i,done:false}));
+function dyEditDay(fn){const items=dyClone(dayItems(dyView));fn(items);dyDays[dyView]=items;saveDaily();renderDaily()}
+function dyEditTpl(fn){const items=dyClone(tplItems());fn(items);dyTpl=items;saveDaily();renderDaily()}
+const dyEdit=(scope,fn)=>scope==="day"?dyEditDay(fn):dyEditTpl(fn);
+function dyIsNow(it){
+  if(dyTab!=="day"||dyView!==iso(new Date())||it.done||it.moved)return false;
+  const s=dyMin(it.start),e=dyMin(it.end);if(s==null)return false;
+  const d=new Date(),now=d.getHours()*60+d.getMinutes();return now>=s&&now<(e!=null&&e>s?e:s+30);
+}
+function dyEl(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n}
+function renderDaily(){
+  const isDay=dyTab==="day", tk=iso(new Date());
+  $("dySegDay").setAttribute("aria-selected",String(isDay)); $("dySegTpl").setAttribute("aria-selected",String(!isDay));
+  $("dyPrev").hidden=!isDay; $("dyNext").hidden=!isDay; $("dyToday").hidden=!isDay||dyView===tk;
+  $("dySum").hidden=!isDay; $("dyDayTools").hidden=!isDay; $("dyTplNote").hidden=isDay;
+  $("dyDayTools").style.display=isDay?"contents":"none";
+  $("dyArrange").textContent=dyArr?"Done arranging":"Arrange";
+  if(isDay){
+    $("dyEyebrow").textContent=dyView===tk?"Today":dyView===addDays(tk,1)?"Tomorrow":dyView===addDays(tk,-1)?"Yesterday":dyView.slice(0,4);
+    $("dyTitle").textContent=new Date(dyView+"T12:00:00").toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"});
+  }else{$("dyEyebrow").textContent="Every new day starts here";$("dyTitle").textContent="Template"}
+  const items=isDay?dayItems(dyView):tplItems();
+  if(isDay){
+    const counted=items.filter(i=>!i.moved),done=counted.filter(i=>i.done).length,total=counted.length,pct=total?Math.round(done/total*100):0;
+    $("dyRing").setAttribute("stroke-dashoffset",String(157.08*(1-pct/100)));
+    $("dyPct").textContent=pct+"%"; $("dyCount").textContent=`${done} of ${total} done`;
+    const left=counted.filter(i=>!i.done);
+    $("dyNextUp").textContent=!total?"Add a block to plan this day.":!left.length?"All done. Nice work.":"Next up: "+left[0].title;
+  }
+  const list=$("dyList"); list.replaceChildren();
+  if(!items.length) list.append(dyEl("li","dy-empty",isDay?"Nothing planned yet. Add a block to get started.":"Your template is empty. Add the blocks every day should start with."));
+  items.forEach((it,i)=>{
+    const li=dyEl("li","blk cat-"+(DY_CATS[it.cat]?it.cat:"other"));
+    if(isDay&&it.done)li.classList.add("done"); if(isDay&&it.moved)li.classList.add("moved");
+    const now=dyIsNow(it); if(now)li.classList.add("now");
+    if(isDay){
+      const cb=document.createElement("input");cb.type="checkbox";cb.className="bchk";cb.id="dyc-"+it.id;cb.checked=!!it.done;cb.disabled=!!it.moved;
+      cb.setAttribute("aria-label","Done: "+(it.title||"block"));
+      cb.addEventListener("change",()=>{dyEditDay(arr=>{const x=arr.find(z=>z.id===it.id);if(x)x.done=cb.checked});if(cb.checked&&dayItems(dyView).filter(z=>!z.moved).every(z=>z.done))toast("Every block done today. Big day.")});
+      li.append(cb);
+    }
+    const tc=dyEl("div","btime"); tc.append(dyEl("b",null,it.start?fmtTime(it.start):"Any time")); if(it.end)tc.append(dyEl("span",null,fmtTime(it.end))); li.append(tc);
+    const body=dyEl("button","bbody"); body.type="button"; body.setAttribute("aria-label","Edit "+(it.title||"block"));
+    body.append(dyEl("span","bt",it.title||"Untitled"));
+    const meta=dyEl("span","bmeta");
+    if(now)meta.append(dyEl("span","bchip","Now"));
+    if(isDay&&it.moved)meta.append(dyEl("span","bchip","Moved to tomorrow"));
+    const dur=dyDur(it.start,it.end); meta.append(dyEl("span",null,(DY_CATS[it.cat]||"Other")+(dur?" · "+dur:""))); body.append(meta);
+    if(it.note)body.append(dyEl("span","bnote",it.note));
+    body.addEventListener("click",()=>{if(!dyArr)openDySheet(dyTab,it.id)});
+    if(isDay&&it.moved){
+      const w=dyEl("div");w.style.cssText="flex:1;min-width:0;display:flex;flex-direction:column";w.append(body);
+      const ub=dyEl("button","linkbtn","Bring back to this day");ub.type="button";
+      ub.addEventListener("click",()=>dyEditDay(arr=>{const x=arr.find(z=>z.id===it.id);if(x)x.moved=false}));
+      w.append(ub);li.append(w);
+    }else li.append(body);
+    if(dyArr){
+      const side=dyEl("div","bside");
+      const up=dyEl("button",null,"↑");up.type="button";up.setAttribute("aria-label","Move up");up.disabled=i===0;
+      const dn=dyEl("button",null,"↓");dn.type="button";dn.setAttribute("aria-label","Move down");dn.disabled=i===items.length-1;
+      up.addEventListener("click",()=>dyMoveBlk(it.id,-1));dn.addEventListener("click",()=>dyMoveBlk(it.id,1));
+      side.append(up,dn);li.append(side);
+    }
+    list.append(li);
+  });
+}
+function dyMoveBlk(id,dir){dyEdit(dyTab,arr=>{const i=arr.findIndex(z=>z.id===id),j=i+dir;if(i<0||j<0||j>=arr.length)return;[arr[i],arr[j]]=[arr[j],arr[i]]})}
+function openDySheet(scope,id){
+  dyEditing={scope,id};
+  const it=id?(scope==="day"?dayItems(dyView):tplItems()).find(z=>z.id===id):null;
+  $("dySheetTitle").textContent=it?"Edit block":"New block";
+  $("dyfTitle").value=it?it.title||"":""; $("dyfStart").value=it?it.start||"":""; $("dyfEnd").value=it?it.end||"":"";
+  $("dyfCat").value=it&&DY_CATS[it.cat]?it.cat:"other"; $("dyfNote").value=it?it.note||"":"";
+  $("dyfDelete").hidden=!it; $("dyfDelConfirm").hidden=true; $("dyfErr").hidden=true;
+  $("dySheetBg").hidden=false; setTimeout(()=>$("dyfTitle").focus(),30);
+}
+function closeDySheet(){$("dySheetBg").hidden=true;dyEditing=null}
+function dyAsk(text,yes,fn){dyConfirmFn=fn;$("dyConfirmText").textContent=text;$("dyYes").textContent=yes;$("dyConfirm").hidden=false}
+function dyHideAsk(){dyConfirmFn=null;$("dyConfirm").hidden=true}
+function dyGo(k){dyView=k;dyHideAsk();renderDaily()}
 function renderAll(){renderStretchRem();renderNudge();renderReminders();renderHeader();renderPet();renderTabs();renderSession();renderHistory();renderCal();if(!$("view-goals").hidden)renderGoals()}
 
 let tt;function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2200)}
 function setNote(m){$("syncNote").textContent=m}
 
 // events
+$("dySegDay").addEventListener("click",()=>{dyTab="day";dyHideAsk();renderDaily()});
+$("dySegTpl").addEventListener("click",()=>{dyTab="tpl";dyHideAsk();renderDaily()});
+$("dyPrev").addEventListener("click",()=>dyGo(addDays(dyView,-1)));
+$("dyNext").addEventListener("click",()=>dyGo(addDays(dyView,1)));
+$("dyToday").addEventListener("click",()=>dyGo(iso(new Date())));
+$("dyAdd").addEventListener("click",()=>openDySheet(dyTab,null));
+$("dyArrange").addEventListener("click",()=>{dyArr=!dyArr;renderDaily()});
+$("dySort").addEventListener("click",()=>{dyEdit(dyTab,arr=>dySort(arr));toast("Sorted by start time")});
+$("dyNo").addEventListener("click",dyHideAsk);
+$("dyYes").addEventListener("click",()=>{const f=dyConfirmFn;dyHideAsk();if(f)f()});
+$("dyReset").addEventListener("click",()=>dyAsk("Replace this day's blocks with your template? Checkmarks and edits for this day will be cleared.","Reset day",()=>{dyEditDay(arr=>arr.splice(0,arr.length,...dyClone(tplItems()).map(i=>({...i,done:false,moved:false}))));toast("Day reset from template")}));
+$("dySaveTpl").addEventListener("click",()=>dyAsk("Make this day's blocks your template? New days will start with them.","Save as template",()=>{dyEditTpl(arr=>arr.splice(0,arr.length,...dyClone(dayItems(dyView)).map(({done,moved,...rest})=>rest)));toast("Template updated")}));
+$("dyMove").addEventListener("click",()=>{
+  const left=dayItems(dyView).filter(i=>!i.done&&!i.moved);
+  if(!left.length){toast("Nothing unfinished to move.");return}
+  dyAsk(`Copy ${left.length} unfinished block${left.length===1?"":"s"} to tomorrow and mark them as moved here?`,"Move them",()=>{
+    const tKey=addDays(dyView,1), base=dyClone(dayItems(tKey)), sig=i=>(i.title||"").trim().toLowerCase()+"|"+(i.start||""), have=new Set(base.map(sig));
+    for(const u of left) if(!have.has(sig(u))){base.push({...dyClone(u),id:dyNewId(),done:false,moved:false});have.add(sig(u))}
+    dySort(base); dyDays[tKey]=base;
+    dyEditDay(arr=>arr.forEach(i=>{if(!i.done&&!i.moved)i.moved=true}));
+    toast(`Moved ${left.length} to tomorrow`);
+  });
+});
+$("dySheet").addEventListener("submit",ev=>{
+  ev.preventDefault(); if(!dyEditing)return;
+  const title=$("dyfTitle").value.trim(),start=$("dyfStart").value,end=$("dyfEnd").value,err=$("dyfErr");
+  if(!title){err.textContent="Give the block a name.";err.hidden=false;$("dyfTitle").focus();return}
+  if(start&&end&&dyMin(end)<=dyMin(start)){err.textContent="End time should be after the start time.";err.hidden=false;return}
+  const patch={title,start,end,cat:$("dyfCat").value,note:$("dyfNote").value.trim()},{scope,id}=dyEditing;
+  dyEdit(scope,arr=>{
+    if(id){const x=arr.find(z=>z.id===id);if(x)Object.assign(x,patch)}
+    else{const item={id:dyNewId(),...patch};if(scope==="day")item.done=false;const s=dyMin(start);let at=arr.length;if(s!=null){const k=arr.findIndex(z=>dyMin(z.start)!=null&&dyMin(z.start)>s);if(k>=0)at=k}arr.splice(at,0,item)}
+  });
+  closeDySheet(); toast(id?"Saved":"Block added");
+});
+$("dyfCancel").addEventListener("click",closeDySheet);
+$("dySheetBg").addEventListener("click",ev=>{if(ev.target===$("dySheetBg"))closeDySheet()});
+document.addEventListener("keydown",ev=>{if(ev.key==="Escape"&&!$("dySheetBg").hidden)closeDySheet()});
+$("dyfDelete").addEventListener("click",()=>{$("dyfDelConfirm").hidden=false});
+$("dyfDelNo").addEventListener("click",()=>{$("dyfDelConfirm").hidden=true});
+$("dyfDelYes").addEventListener("click",()=>{if(!dyEditing)return;const {scope,id}=dyEditing;dyEdit(scope,arr=>{const i=arr.findIndex(z=>z.id===id);if(i>=0)arr.splice(i,1)});closeDySheet();toast("Block deleted")});
+setInterval(()=>{if(!$("view-daily").hidden&&$("dySheetBg").hidden)renderDaily()},60000);
 let indT;
 function moveInd(anim){
   const tabs=[...document.querySelectorAll(".view-btn")], i=Math.max(0,tabs.findIndex(x=>x.getAttribute("aria-selected")==="true"));
@@ -927,7 +1182,8 @@ document.querySelector(".views").addEventListener("click",e=>{
   const v=b.dataset.view;
   document.querySelectorAll(".view-btn").forEach(x=>x.setAttribute("aria-selected",String(x===b)));
   moveInd(true);
-  $("view-workout").hidden=v!=="workout"; $("view-cal").hidden=v!=="cal"; $("view-goals").hidden=v!=="goals"; $("view-stretch").hidden=v!=="stretch";
+  $("view-workout").hidden=v!=="workout"; $("view-cal").hidden=v!=="cal"; $("view-goals").hidden=v!=="goals"; $("view-stretch").hidden=v!=="stretch"; $("view-daily").hidden=v!=="daily";
+  if(v==="daily") renderDaily();
   if(v==="stretch") renderStretch();
   if(v==="goals") renderGoals();
   if(v==="cal") renderCal();
@@ -973,7 +1229,7 @@ if(navigator.storage&&navigator.storage.persist){navigator.storage.persist().cat
 
 // ---- Backup: logs live on this phone, so let people save and restore a copy ----
 $("exportBtn").addEventListener("click",()=>{
-  const data={app:"push-pull-legs",version:1,exported:new Date().toISOString(),sessions,pet,goals:goalState,stretchDays};
+  const data={app:"push-pull-legs",version:1,exported:new Date().toISOString(),sessions,pet,goals:goalState,stretchDays,daily:{tpl:dyTpl,days:dyDays}};
   const blob=new Blob([JSON.stringify(data,null,1)],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`ppl-backup-${TODAY}.json`;
   document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
@@ -985,6 +1241,7 @@ $("importFile").addEventListener("change",async e=>{
     const d=JSON.parse(await f.text());
     if(!d||typeof d.sessions!=="object") throw 0;
     sessions=Object.assign({},sessions,d.sessions); saveLocal();
+    if(d.daily&&typeof d.daily==="object"){if(Array.isArray(d.daily.tpl))dyTpl=d.daily.tpl;if(d.daily.days&&typeof d.daily.days==="object")dyDays=Object.assign({},dyDays,d.daily.days);saveDaily()}
     if(Array.isArray(d.stretchDays)){stretchDays=[...new Set([...stretchDays,...d.stretchDays])].sort();saveStretch()}
     if(d.goals&&typeof d.goals==="object"){goalState=Object.assign({},goalState,d.goals);saveGoals()}
     if(d.pet&&d.pet.name){pet=d.pet;try{localStorage.setItem(PET_KEY,JSON.stringify(pet))}catch(_){}}
