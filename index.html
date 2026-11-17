@@ -183,6 +183,13 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .fld textarea{min-height:70px;resize:vertical}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .ferr{margin:0;color:var(--accent);font-size:.85rem}
+.dy-using{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 12px}
+.dy-using label{font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);flex:none}
+.dy-using select{flex:1;min-width:0;min-height:38px;border:0;background:transparent;color:var(--ink);font:700 1.05rem var(--display);text-transform:uppercase;letter-spacing:.02em;cursor:pointer}
+.tchips{display:flex;gap:6px;flex-wrap:wrap}
+.tchip{font:700 .9rem var(--display);text-transform:uppercase;letter-spacing:.02em;border:1px solid var(--line);background:var(--bg);color:var(--muted);border-radius:99px;padding:7px 12px;cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tchip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.tchip.add{border-style:dashed;color:var(--accent)}
 .ghost{font:600 .85rem var(--body);border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:9px;padding:7px 12px;cursor:pointer}
 .hist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
 .hrow{display:grid;grid-template-columns:1fr auto auto;gap:12px;padding:11px 14px;border-top:1px solid var(--line);align-items:center;font-size:.9rem}
@@ -313,9 +320,20 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
     </div>
     <div class="seg" role="tablist">
       <button role="tab" id="dySegDay" aria-selected="true">Day</button>
-      <button role="tab" id="dySegTpl" aria-selected="false">Template</button>
+      <button role="tab" id="dySegTpl" aria-selected="false">Schedules</button>
     </div>
-    <div class="note" id="dyTplNote" hidden>Every new day starts from this template. Changing it doesn't touch days you've already started.</div>
+    <div class="dy-using" id="dyUsing"><label for="dyUseSel">Schedule</label><select id="dyUseSel"></select></div>
+    <div class="rem" id="dyTplBar" hidden>
+      <div class="tchips" id="dyTplChips"></div>
+      <div class="fld"><label for="dyTplName">Schedule name</label><input id="dyTplName" maxlength="30" autocomplete="off"></div>
+      <div>
+        <div class="eyebrow" style="margin-bottom:6px">Use on</div>
+        <div class="days" id="dyTplDays"></div>
+      </div>
+      <div class="note" id="dyTplDaysNote"></div>
+      <div class="dy-tools"><button class="ghost" id="dyTplDup">Duplicate</button><button class="ghost" id="dyTplDel">Delete schedule</button></div>
+    </div>
+    <div class="note" id="dyTplNote" hidden>Each new day starts from the schedule set for its weekday. Changing a schedule doesn't touch days you've already started.</div>
     <ol class="blocks" id="dyList"></ol>
     <div class="dy-tools">
       <button class="primary" id="dyAdd">+ Add block</button>
@@ -985,19 +1003,31 @@ const DY_STARTER=[
   {id:"t8",start:"21:00",end:"21:30",title:"Wind-down",cat:"rest",note:"Plan tomorrow, screens off."}
 ];
 const DY_KEY="ppl.daily.v1";
-let dyTpl=null, dyDays={};
-try{const v=JSON.parse(localStorage.getItem(DY_KEY)||"null");if(v){if(Array.isArray(v.tpl))dyTpl=v.tpl;if(v.days&&typeof v.days==="object")dyDays=v.days}}catch(e){}
-function saveDaily(){try{localStorage.setItem(DY_KEY,JSON.stringify({tpl:dyTpl,days:dyDays}))}catch(e){toast("Couldn't save. Your phone's storage may be full.")}}
-let dyView=TODAY, dyTab="day", dyArr=false, dyEditing=null, dyConfirmFn=null;
 const dyClone=v=>JSON.parse(JSON.stringify(v));
+let dyTpls=[], dyDays={}, dyDayTpl={};
+const ALL_DAYS=[0,1,2,3,4,5,6];
+function dyFromOld(items){return [{id:"tp1",name:"My day",days:[...ALL_DAYS],items:Array.isArray(items)?items:dyClone(DY_STARTER)}]}
+try{const v=JSON.parse(localStorage.getItem(DY_KEY)||"null");if(v){
+  if(Array.isArray(v.tpls)&&v.tpls.length)dyTpls=v.tpls;else dyTpls=dyFromOld(v.tpl);
+  if(v.days&&typeof v.days==="object")dyDays=v.days;
+  if(v.dayTpl&&typeof v.dayTpl==="object")dyDayTpl=v.dayTpl;
+}}catch(e){}
+if(!dyTpls.length)dyTpls=dyFromOld(null);
+function saveDaily(){try{localStorage.setItem(DY_KEY,JSON.stringify({tpls:dyTpls,days:dyDays,dayTpl:dyDayTpl}))}catch(e){toast("Couldn't save. Your phone's storage may be full.")}}
+let dyTplSel=dyTpls[0].id;
+let dyView=TODAY, dyTab="day", dyArr=false, dyEditing=null, dyConfirmFn=null;
 const dyNewId=()=>"b"+Math.random().toString(36).slice(2,10);
 const dyMin=t=>{if(!t)return null;const [h,m]=t.split(":").map(Number);return h*60+m};
 const dyDur=(a,b)=>{const s=dyMin(a),e=dyMin(b);if(s==null||e==null||e<=s)return "";const m=e-s,h=Math.floor(m/60),r=m%60;return h?h+" h"+(r?" "+r+" min":""):r+" min"};
 const dySort=arr=>arr.sort((a,b)=>{const x=dyMin(a.start),y=dyMin(b.start);if(x==null&&y==null)return 0;if(x==null)return 1;if(y==null)return -1;return x-y});
-const tplItems=()=>dyTpl||DY_STARTER;
-const dayItems=k=>dyDays[k]?dyDays[k]:tplItems().map(i=>({...i,done:false}));
+const dowOf=k=>new Date(k+"T12:00:00").getDay();
+const tplById=id=>dyTpls.find(t=>t.id===id)||null;
+const tplForDay=k=>tplById(dyDayTpl[k])||dyTpls.find(t=>t.days.includes(dowOf(k)))||dyTpls[0];
+const selTpl=()=>tplById(dyTplSel)||dyTpls[0];
+const tplItems=()=>selTpl().items;
+const dayItems=k=>dyDays[k]?dyDays[k]:tplForDay(k).items.map(i=>({...i,done:false}));
 function dyEditDay(fn){const items=dyClone(dayItems(dyView));fn(items);dyDays[dyView]=items;saveDaily();renderDaily()}
-function dyEditTpl(fn){const items=dyClone(tplItems());fn(items);dyTpl=items;saveDaily();renderDaily()}
+function dyEditTpl(fn){const t=selTpl();const items=dyClone(t.items);fn(items);t.items=items;saveDaily();renderDaily()}
 const dyEdit=(scope,fn)=>scope==="day"?dyEditDay(fn):dyEditTpl(fn);
 function dyIsNow(it){
   if(dyTab!=="day"||dyView!==iso(new Date())||it.done||it.moved)return false;
@@ -1010,12 +1040,15 @@ function renderDaily(){
   $("dySegDay").setAttribute("aria-selected",String(isDay)); $("dySegTpl").setAttribute("aria-selected",String(!isDay));
   $("dyPrev").hidden=!isDay; $("dyNext").hidden=!isDay; $("dyToday").hidden=!isDay||dyView===tk;
   $("dySum").hidden=!isDay; $("dyDayTools").hidden=!isDay; $("dyTplNote").hidden=isDay;
+  $("dyUsing").hidden=!isDay; $("dyTplBar").hidden=isDay;
+  if(isDay){const cur=tplForDay(dyView).id;$("dyUseSel").innerHTML="";dyTpls.forEach(t=>{const o=document.createElement("option");o.value=t.id;o.textContent=t.name;if(t.id===cur)o.selected=true;$("dyUseSel").append(o)})}
+  else renderTplBar();
   $("dyDayTools").style.display=isDay?"contents":"none";
   $("dyArrange").textContent=dyArr?"Done arranging":"Arrange";
   if(isDay){
     $("dyEyebrow").textContent=dyView===tk?"Today":dyView===addDays(tk,1)?"Tomorrow":dyView===addDays(tk,-1)?"Yesterday":dyView.slice(0,4);
     $("dyTitle").textContent=new Date(dyView+"T12:00:00").toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"});
-  }else{$("dyEyebrow").textContent="Every new day starts here";$("dyTitle").textContent="Template"}
+  }else{$("dyEyebrow").textContent="Schedules";$("dyTitle").textContent=selTpl().name}
   const items=isDay?dayItems(dyView):tplItems();
   if(isDay){
     const counted=items.filter(i=>!i.moved),done=counted.filter(i=>i.done).length,total=counted.length,pct=total?Math.round(done/total*100):0;
@@ -1061,6 +1094,25 @@ function renderDaily(){
     list.append(li);
   });
 }
+function renderTplBar(){
+  const t=selTpl();
+  const chips=$("dyTplChips"); chips.replaceChildren();
+  dyTpls.forEach(x=>{const b=dyEl("button","tchip",x.name);b.type="button";b.setAttribute("aria-pressed",String(x.id===t.id));b.addEventListener("click",()=>{dyTplSel=x.id;dyArr=false;renderDaily()});chips.append(b)});
+  const nb=dyEl("button","tchip add","+ New schedule");nb.type="button";nb.addEventListener("click",()=>dyNewTpl(false));chips.append(nb);
+  if(document.activeElement!==$("dyTplName"))$("dyTplName").value=t.name;
+  $("dyTplDays").innerHTML=[1,2,3,4,5,6,0].map(d=>`<button class="dchip" id="tdchip-${d}" data-d="${d}" aria-pressed="${t.days.includes(d)}">${DAYN[d].slice(0,2)}</button>`).join("");
+  const used=new Set(dyTpls.flatMap(x=>x.days)), free=ALL_DAYS.filter(d=>!used.has(d));
+  const mine=[1,2,3,4,5,6,0].filter(d=>t.days.includes(d)).map(d=>DAYN[d]);
+  $("dyTplDaysNote").textContent=(mine.length?`New ${mine.join(", ")} days start from this schedule.`:"Not set for any weekday yet. Tap days above, or pick it for a single day from the Day view.")+(free.length?` Days with no schedule (${[1,2,3,4,5,6,0].filter(d=>free.includes(d)).map(d=>DAYN[d]).join(", ")}) use ${dyTpls[0].name}.`:"");
+  $("dyTplDel").disabled=dyTpls.length<2;
+}
+function dyNewTpl(copy){
+  const src=selTpl(), id="tp"+Math.random().toString(36).slice(2,8);
+  const name=copy?(src.name+" copy").slice(0,30):"Schedule "+(dyTpls.length+1);
+  dyTpls.push({id,name,days:[],items:copy?dyClone(src.items).map(i=>({...i,id:dyNewId()})):[]});
+  dyTplSel=id; saveDaily(); renderDaily(); toast(copy?"Schedule copied":"New schedule added. Name it, pick its days, then add blocks");
+  setTimeout(()=>{const n=$("dyTplName");n.focus();n.select()},50);
+}
 function dyMoveBlk(id,dir){dyEdit(dyTab,arr=>{const i=arr.findIndex(z=>z.id===id),j=i+dir;if(i<0||j<0||j>=arr.length)return;[arr[i],arr[j]]=[arr[j],arr[i]]})}
 function openDySheet(scope,id){
   dyEditing={scope,id};
@@ -1091,8 +1143,31 @@ $("dyArrange").addEventListener("click",()=>{dyArr=!dyArr;renderDaily()});
 $("dySort").addEventListener("click",()=>{dyEdit(dyTab,arr=>dySort(arr));toast("Sorted by start time")});
 $("dyNo").addEventListener("click",dyHideAsk);
 $("dyYes").addEventListener("click",()=>{const f=dyConfirmFn;dyHideAsk();if(f)f()});
-$("dyReset").addEventListener("click",()=>dyAsk("Replace this day's blocks with your template? Checkmarks and edits for this day will be cleared.","Reset day",()=>{dyEditDay(arr=>arr.splice(0,arr.length,...dyClone(tplItems()).map(i=>({...i,done:false,moved:false}))));toast("Day reset from template")}));
-$("dySaveTpl").addEventListener("click",()=>dyAsk("Make this day's blocks your template? New days will start with them.","Save as template",()=>{dyEditTpl(arr=>arr.splice(0,arr.length,...dyClone(dayItems(dyView)).map(({done,moved,...rest})=>rest)));toast("Template updated")}));
+$("dyReset").addEventListener("click",()=>{const t=tplForDay(dyView);dyAsk(`Replace this day's blocks with your ${t.name} schedule? Checkmarks and edits for this day will be cleared.`,"Reset day",()=>{dyEditDay(arr=>arr.splice(0,arr.length,...dyClone(t.items).map(i=>({...i,done:false,moved:false}))));toast("Day reset from "+t.name)})});
+$("dySaveTpl").addEventListener("click",()=>{const t=tplForDay(dyView);dyAsk(`Save this day's blocks as your ${t.name} schedule? New ${t.name} days will start with them.`,"Save schedule",()=>{t.items=dyClone(dayItems(dyView)).map(({done,moved,...rest})=>rest);saveDaily();renderDaily();toast(t.name+" schedule updated")})});
+$("dyUseSel").addEventListener("change",e=>{
+  const id=e.target.value, t=tplById(id); if(!t) return;
+  const started=dyDays[dyView]&&dyDays[dyView].some(i=>i.done);
+  const apply=()=>{dyDayTpl[dyView]=id;delete dyDays[dyView];saveDaily();renderDaily();toast("Switched this day to "+t.name)};
+  if(started){dyAsk(`Switch this day to ${t.name}? This day's checkmarks will be cleared.`,"Switch",apply);renderDaily()}else apply();
+});
+$("dyTplName").addEventListener("input",e=>{const v=e.target.value.replace(/\s+/g," ").slice(0,30);if(!v.trim())return;selTpl().name=v;saveDaily();$("dyTitle").textContent=v;const c=[...document.querySelectorAll("#dyTplChips .tchip")].find(x=>x.getAttribute("aria-pressed")==="true");if(c)c.textContent=v});
+$("dyTplName").addEventListener("blur",()=>{const t=selTpl();t.name=t.name.trim()||"Schedule";saveDaily();$("dyTplName").value=t.name;$("dyTitle").textContent=t.name;const c=[...document.querySelectorAll("#dyTplChips .tchip")].find(x=>x.getAttribute("aria-pressed")==="true");if(c)c.textContent=t.name});
+$("dyTplDays").addEventListener("click",e=>{
+  const b=e.target.closest(".dchip"); if(!b) return;
+  const d=+b.dataset.d, t=selTpl();
+  if(t.days.includes(d)) t.days=t.days.filter(x=>x!==d);
+  else{dyTpls.forEach(x=>{x.days=x.days.filter(y=>y!==d)});t.days.push(d)}
+  saveDaily(); renderDaily();
+});
+$("dyTplDup").addEventListener("click",()=>dyNewTpl(true));
+$("dyTplDel").addEventListener("click",()=>{
+  if(dyTpls.length<2) return; const t=selTpl();
+  dyAsk(`Delete the ${t.name} schedule? Days you've already started keep their blocks.`,"Delete",()=>{
+    dyTpls=dyTpls.filter(x=>x.id!==t.id); for(const k in dyDayTpl) if(dyDayTpl[k]===t.id) delete dyDayTpl[k];
+    dyTplSel=dyTpls[0].id; saveDaily(); renderDaily(); toast("Schedule deleted");
+  });
+});
 $("dyMove").addEventListener("click",()=>{
   const left=dayItems(dyView).filter(i=>!i.done&&!i.moved);
   if(!left.length){toast("Nothing unfinished to move.");return}
@@ -1229,7 +1304,7 @@ if(navigator.storage&&navigator.storage.persist){navigator.storage.persist().cat
 
 // ---- Backup: logs live on this phone, so let people save and restore a copy ----
 $("exportBtn").addEventListener("click",()=>{
-  const data={app:"push-pull-legs",version:1,exported:new Date().toISOString(),sessions,pet,goals:goalState,stretchDays,daily:{tpl:dyTpl,days:dyDays}};
+  const data={app:"push-pull-legs",version:1,exported:new Date().toISOString(),sessions,pet,goals:goalState,stretchDays,daily:{tpls:dyTpls,days:dyDays,dayTpl:dyDayTpl}};
   const blob=new Blob([JSON.stringify(data,null,1)],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`ppl-backup-${TODAY}.json`;
   document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
@@ -1241,7 +1316,7 @@ $("importFile").addEventListener("change",async e=>{
     const d=JSON.parse(await f.text());
     if(!d||typeof d.sessions!=="object") throw 0;
     sessions=Object.assign({},sessions,d.sessions); saveLocal();
-    if(d.daily&&typeof d.daily==="object"){if(Array.isArray(d.daily.tpl))dyTpl=d.daily.tpl;if(d.daily.days&&typeof d.daily.days==="object")dyDays=Object.assign({},dyDays,d.daily.days);saveDaily()}
+    if(d.daily&&typeof d.daily==="object"){if(Array.isArray(d.daily.tpls)&&d.daily.tpls.length)dyTpls=d.daily.tpls;else if(Array.isArray(d.daily.tpl))dyTpls=dyFromOld(d.daily.tpl);dyTplSel=dyTpls[0].id;if(d.daily.dayTpl&&typeof d.daily.dayTpl==="object")dyDayTpl=Object.assign({},dyDayTpl,d.daily.dayTpl);if(d.daily.days&&typeof d.daily.days==="object")dyDays=Object.assign({},dyDays,d.daily.days);saveDaily()}
     if(Array.isArray(d.stretchDays)){stretchDays=[...new Set([...stretchDays,...d.stretchDays])].sort();saveStretch()}
     if(d.goals&&typeof d.goals==="object"){goalState=Object.assign({},goalState,d.goals);saveGoals()}
     if(d.pet&&d.pet.name){pet=d.pet;try{localStorage.setItem(PET_KEY,JSON.stringify(pet))}catch(_){}}
