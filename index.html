@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#EEF1F4" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0F1217" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#EDF1EC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E120F" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="PPL">
+<meta name="apple-mobile-web-app-title" content="Oak">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<title>Push Pull Legs</title>
+<title>Oak</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap">
 <style>
@@ -23,19 +23,19 @@ body{margin:0}
 [hidden]{display:none!important}
 img{max-width:100%}
 
-/* Layout: single phone column like a gym clipboard; week strip, today's session, history. */
+/* Layout: single phone column. Today (the oak + today at a glance), then Plan, Fitness, Goals, Calendar. */
 :root{
-  --bg:#EEF1F4; --surface:#FFFFFF; --ink:#141820; --muted:#5E6876; --line:#D6DCE3;
-  --accent:#D9480F; --accent-ink:#FFFFFF; --accent-soft:#FBE3D6; --good:#2B8A3E; --good-soft:#DDF2E1; --c-routine:#6F7C90; --c-job:#B86E0A; --c-fitness:#D9480F; --c-study:#12806F; --c-project:#6A4BD1; --c-rest:#4566A0; --c-other:#7F8896; --owl:#8A5A33; --owl-dark:#5E3B20; --owl-belly:#F3E2C6; --beak:#E8A33A; --eye:#FFFFFF; --egg:#EFE6D6; --egg-spot:#C9B79A;
+  --bg:#EDF1EC; --surface:#FFFFFF; --ink:#141A15; --muted:#5B685D; --line:#D3DCD3;
+  --accent:#2E6B3A; --accent-ink:#FFFFFF; --accent-soft:#DCEBDD; --good:#2B8A3E; --good-soft:#DDF2E1; --leaf0:#3F8A47; --leaf1:#5DA35A; --leaf2:#2F6E3A; --leafd0:#9A9A4E; --leafd1:#B39B55; --leafd2:#7E7A3E; --bark:#6B4A2E; --bark-dk:#4E3420; --soil:#8B6A48; --soil-dk:#6E5236; --sky:#E1EEE3; --acorn:#9B6A35; --cap:#5E4128; --c-routine:#6F7C90; --c-job:#B86E0A; --c-fitness:#D9480F; --c-study:#12806F; --c-project:#6A4BD1; --c-rest:#4566A0; --c-other:#7F8896; --owl:#8A5A33; --owl-dark:#5E3B20; --owl-belly:#F3E2C6; --beak:#E8A33A; --eye:#FFFFFF; --egg:#EFE6D6; --egg-spot:#C9B79A;
   --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
   --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0F1217; --surface:#181C23; --ink:#E9EDF2; --muted:#93A0B0; --line:#2A303A;
-  --accent:#FF7A3D; --accent-ink:#1A0D05; --accent-soft:#3A2116; --good:#5FCB72; --good-soft:#18301D; --c-routine:#9AA6BA; --c-job:#F0A43C; --c-fitness:#FF7A3D; --c-study:#3CC2B2; --c-project:#A28AF5; --c-rest:#7F9DD6; --c-other:#A3ACBA; --owl:#B98252; --owl-dark:#7C5330; --owl-belly:#F0DCBB; --beak:#F2B04A; --eye:#FFFFFF; --egg:#E6DCCB; --egg-spot:#A8957A; color-scheme:dark}}
+  --bg:#0E120F; --surface:#171D18; --ink:#E7EDE7; --muted:#93A194; --line:#28322A;
+  --accent:#7CC489; --accent-ink:#0B1A0E; --accent-soft:#1C3021; --good:#5FCB72; --good-soft:#18301D; --leaf0:#4E9B57; --leaf1:#6DB868; --leaf2:#3A7D45; --leafd0:#8E8C4C; --leafd1:#A38E52; --leafd2:#6E6B3B; --bark:#8A6440; --bark-dk:#5F4229; --soil:#6E5438; --soil-dk:#523E29; --sky:#16241A; --acorn:#B9874E; --cap:#7C5A38; --c-routine:#9AA6BA; --c-job:#F0A43C; --c-fitness:#FF7A3D; --c-study:#3CC2B2; --c-project:#A28AF5; --c-rest:#7F9DD6; --c-other:#A3ACBA; --owl:#B98252; --owl-dark:#7C5330; --owl-belly:#F0DCBB; --beak:#F2B04A; --eye:#FFFFFF; --egg:#E6DCCB; --egg-spot:#A8957A; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0F1217; --surface:#181C23; --ink:#E9EDF2; --muted:#93A0B0; --line:#2A303A;
-  --accent:#FF7A3D; --accent-ink:#1A0D05; --accent-soft:#3A2116; --good:#5FCB72; --good-soft:#18301D; --c-routine:#9AA6BA; --c-job:#F0A43C; --c-fitness:#FF7A3D; --c-study:#3CC2B2; --c-project:#A28AF5; --c-rest:#7F9DD6; --c-other:#A3ACBA; --owl:#B98252; --owl-dark:#7C5330; --owl-belly:#F0DCBB; --beak:#F2B04A; --eye:#FFFFFF; --egg:#E6DCCB; --egg-spot:#A8957A; color-scheme:dark}
+  --bg:#0E120F; --surface:#171D18; --ink:#E7EDE7; --muted:#93A194; --line:#28322A;
+  --accent:#7CC489; --accent-ink:#0B1A0E; --accent-soft:#1C3021; --good:#5FCB72; --good-soft:#18301D; --leaf0:#4E9B57; --leaf1:#6DB868; --leaf2:#3A7D45; --leafd0:#8E8C4C; --leafd1:#A38E52; --leafd2:#6E6B3B; --bark:#8A6440; --bark-dk:#5F4229; --soil:#6E5438; --soil-dk:#523E29; --sky:#16241A; --acorn:#B9874E; --cap:#7C5A38; --c-routine:#9AA6BA; --c-job:#F0A43C; --c-fitness:#FF7A3D; --c-study:#3CC2B2; --c-project:#A28AF5; --c-rest:#7F9DD6; --c-other:#A3ACBA; --owl:#B98252; --owl-dark:#7C5330; --owl-belly:#F0DCBB; --beak:#F2B04A; --eye:#FFFFFF; --egg:#E6DCCB; --egg-spot:#A8957A; color-scheme:dark}
 html,body{background:var(--bg)}
 body{color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 40px}
@@ -190,6 +190,35 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .tchip{font:700 .9rem var(--display);text-transform:uppercase;letter-spacing:.02em;border:1px solid var(--line);background:var(--bg);color:var(--muted);border-radius:99px;padding:7px 12px;cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tchip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--surface)}
 .tchip.add{border-style:dashed;color:var(--accent)}
+.oak-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column}
+.oak-sky{background:linear-gradient(180deg,var(--sky),var(--surface))}
+.oak-art{display:block;width:100%;height:230px}
+.oak-art svg{width:100%;height:100%;display:block}
+.oak-info{padding:4px 16px 0;display:flex;flex-direction:column;gap:6px}
+.oak-msg{font-size:.95rem}
+.oak-stats{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);margin-top:12px}
+.oak-stats div{padding:10px 6px;text-align:center;min-width:0}
+.oak-stats div+div{border-left:1px solid var(--line)}
+.oak-stats b{display:block;font:800 1.5rem var(--display);line-height:1.05}
+.oak-stats span{font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tlist{display:flex;flex-direction:column;gap:8px}
+.trow{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;text-align:left;cursor:pointer;color:var(--ink);font:inherit}
+.trow:hover{border-color:var(--accent)}
+.trow b{font:700 1.1rem var(--display);text-transform:uppercase;letter-spacing:.02em}
+.trow .d{grid-column:1;font-size:.85rem;color:var(--muted);min-width:0;overflow-wrap:anywhere}
+.trow .pts{grid-row:1 / span 2;grid-column:2;font:700 .85rem var(--display);padding:4px 9px;border-radius:99px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.trow.ok .pts{background:var(--good-soft);color:var(--good)}
+.fit-top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.fit-top .stats{display:flex;gap:16px;text-align:right}
+.tz-soil{fill:var(--soil)}.tz-soildk{fill:var(--soil-dk)}.tz-bark{fill:var(--bark)}.tz-barkdk{fill:var(--bark-dk)}
+.tz-l0{fill:var(--leaf0)}.tz-l1{fill:var(--leaf1)}.tz-l2{fill:var(--leaf2)}.tz-d0{fill:var(--leafd0)}.tz-d1{fill:var(--leafd1)}.tz-d2{fill:var(--leafd2)}
+.tz-shadow{fill:var(--leaf2);opacity:.45}.tz-acorn{fill:var(--acorn)}.tz-cap{fill:var(--cap)}
+.tz-stem{stroke:var(--leaf2);stroke-width:4;fill:none;stroke-linecap:round}
+.tz-br{stroke:var(--bark);fill:none;stroke-linecap:round}
+.tz-root{stroke:var(--bark-dk);fill:none;stroke-linecap:round;stroke-width:4}
+@keyframes sway{0%,100%{transform:rotate(-.7deg)}50%{transform:rotate(.7deg)}}
+.sway{transform-origin:100px 180px;transform-box:view-box;animation:sway 7s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.sway{animation:none}}
 .ghost{font:600 .85rem var(--body);border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:9px;padding:7px 12px;cursor:pointer}
 .hist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
 .hrow{display:grid;grid-template-columns:1fr auto auto;gap:12px;padding:11px 14px;border-top:1px solid var(--line);align-items:center;font-size:.9rem}
@@ -203,7 +232,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .views{position:relative}
 .view-btn{font:700 clamp(.7rem,3.2vw,.95rem) var(--display);text-transform:uppercase;letter-spacing:0;overflow:hidden;white-space:nowrap;min-width:0;background:none;border:0;color:var(--muted);padding:10px 0 12px;cursor:pointer;transition:color .3s ease;-webkit-tap-highlight-color:transparent}
 .view-btn[aria-selected="true"]{color:var(--ink)}
-.view-ind{position:absolute;left:0;bottom:-2px;height:3px;width:20%;pointer-events:none;transform:translateX(calc(var(--i,3) * 100%));transition:transform .45s cubic-bezier(.22,1,.36,1);will-change:transform}
+.view-ind{position:absolute;left:0;bottom:-2px;height:3px;width:20%;pointer-events:none;transform:translateX(calc(var(--i,0) * 100%));transition:transform .45s cubic-bezier(.22,1,.36,1);will-change:transform}
 .view-ind::before{content:"";position:absolute;left:14%;right:14%;top:0;bottom:0;border-radius:3px;background:var(--accent);transition:transform .45s cubic-bezier(.22,1,.36,1)}
 .views.moving .view-ind::before{transform:scaleX(1.25)}
 @media (prefers-reduced-motion:reduce){.view-ind,.view-ind::before,.view-btn{transition:none}}
@@ -279,32 +308,46 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
   <header>
     <div>
       <div class="eyebrow" id="dateLabel">Today</div>
-      <h1>Push Pull Legs</h1>
-    </div>
-    <div class="stats">
-      <div class="stat"><b class="num" id="weekCount">0/3</b><span>This week</span></div>
-      <div class="stat"><b class="num" id="streak">0</b><span>Wk streak</span></div>
+      <h1>Oak</h1>
     </div>
   </header>
 
-  <section class="pet" aria-label="Your owl">
-    <button class="pet-art" id="petArt" aria-label="Pet your owl"></button>
-    <div class="pet-info">
-      <div class="stage" id="petStage">Egg</div>
-      <div class="pet-name" id="petNameRow"></div>
-      <div class="pet-msg" id="petMsg"></div>
-      <div class="bar" aria-hidden="true"><i id="petBar" style="width:0%"></i></div>
-      <div class="note num" id="petNext"></div>
-    </div>
-  </section>
-
   <div class="views" role="tablist" id="views">
     <span class="view-ind" aria-hidden="true"></span>
+    <button class="view-btn" role="tab" id="vb-today" aria-selected="true" data-view="today">Today</button>
+    <button class="view-btn" role="tab" id="vb-daily" aria-selected="false" data-view="daily">Plan</button>
+    <button class="view-btn" role="tab" id="vb-fitness" aria-selected="false" data-view="fitness">Fitness</button>
     <button class="view-btn" role="tab" id="vb-goals" aria-selected="false" data-view="goals">Goals</button>
-    <button class="view-btn" role="tab" id="vb-daily" aria-selected="false" data-view="daily">Daily</button>
-    <button class="view-btn" role="tab" id="vb-stretch" aria-selected="false" data-view="stretch">Stretch</button>
-    <button class="view-btn" role="tab" id="vb-workout" aria-selected="true" data-view="workout">Workout</button>
     <button class="view-btn" role="tab" id="vb-cal" aria-selected="false" data-view="cal">Calendar</button>
+  </div>
+
+  <div id="view-today" style="display:flex;flex-direction:column;gap:16px">
+    <section class="oak-card" aria-label="Your oak">
+      <div class="oak-sky"><div class="oak-art" id="oakArt" role="img" aria-label="Your oak tree"></div></div>
+      <div class="oak-info">
+        <div class="stage" id="oakStage">Acorn</div>
+        <div class="oak-msg" id="oakMsg"></div>
+        <div class="bar" aria-hidden="true"><i id="oakBar" style="width:0%"></i></div>
+        <div class="note num" id="oakNext"></div>
+      </div>
+      <div class="oak-stats">
+        <div><b class="num" id="oakToday">0</b><span>Growth today</span></div>
+        <div><b class="num" id="oakStreak">0</b><span>Day streak</span></div>
+        <div><b class="num" id="oakRings">0</b><span>Rings</span></div>
+      </div>
+    </section>
+    <h2>Today</h2>
+    <div class="tlist" id="todayList"></div>
+    <div class="note">Every block you check off, workout you log and stretch you finish grows your oak. A day with 3 or more growth adds a ring. Miss a few days and the leaves droop, but it never resets.</div>
+    <section style="display:flex;flex-direction:column;gap:8px">
+    <h2>Backup</h2>
+    <div class="note">Your logs live only on this phone. Save a backup now and then, and restore it if you switch phones or clear your browser.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="ghost" id="exportBtn">Save backup</button>
+      <label class="ghost" for="importFile" style="display:inline-block">Restore backup</label>
+      <input type="file" id="importFile" accept="application/json,.json" hidden>
+    </div>
+    </section>
   </div>
 
   <div id="view-daily" hidden style="display:flex;flex-direction:column;gap:14px">
@@ -377,77 +420,18 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
     </form>
   </div>
 
-  <div id="view-stretch" hidden style="display:flex;flex-direction:column;gap:14px">
-    <div class="st-card" id="stIntro">
-      <div class="st-top">
-        <div><div class="eyebrow">Morning stretch</div><b id="stLen">7 min</b></div>
-        <span class="pill" id="stStatus">Not yet today</span>
-      </div>
-      <div class="st-meta"><span class="num" id="stWeek">0 this week</span><span class="num" id="stStreak">0-day streak</span><span>No equipment, just a floor</span></div>
-      <button class="primary" id="stStart">Start stretching</button>
-      <button class="ghost" id="stMark">Already stretched today? Mark it done</button>
+  <div id="view-fitness" hidden style="display:flex;flex-direction:column;gap:16px">
+    <div class="seg" role="tablist" id="fitSeg">
+      <button role="tab" id="fitW" aria-selected="true">Workout</button>
+      <button role="tab" id="fitS" aria-selected="false">Stretch</button>
     </div>
-    <div class="player" id="stPlayer" hidden>
-      <div class="step num" id="pStep"></div>
-      <h2 id="pName"></h2>
-      <div class="side" id="pSide"></div>
-      <div class="ring"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="44" stroke-width="8"/><circle class="bar2" id="pBar" cx="50" cy="50" r="44" stroke-width="8" stroke-dasharray="276.46" stroke-dashoffset="0"/></svg><div class="t num" id="pTime">30</div></div>
-      <div class="cue" id="pCue"></div>
-      <div class="next" id="pNext"></div>
-      <div class="pctl"><button id="pBack">Back</button><button class="main" id="pPause">Pause</button><button id="pSkip">Skip</button></div>
-      <button class="ghost" id="pStop">End routine</button>
-    </div>
-    <h2>The routine</h2>
-    <div class="st-list" id="stList"></div>
-    <div class="note">Move slowly and breathe. Stretch to mild tension, never pain. Stop any stretch that hurts.</div>
-
-    <h2>Stretch reminder</h2>
-    <div class="rem">
-      <div>
-        <div class="eyebrow" style="margin-bottom:6px">Days</div>
-        <div class="days" id="stDays"></div>
-      </div>
-      <div class="rem-row"><label for="stTime">Reminder time</label><input type="time" id="stTime" value="07:30"></div>
-      <div class="rem-btns">
-        <button class="primary" id="stIcs">Add stretch reminder to phone calendar</button>
-        <a class="ghost" id="stGcal" href="#" target="_blank" rel="noopener">Add to Google Calendar ↗</a>
-      </div>
-      <div class="note">This adds only the stretch reminder, so your gym reminders won't double up. iPhone: open the downloaded file and tap Add All.</div>
-    </div>
-  </div>
-
-  <div id="view-goals" hidden style="display:flex;flex-direction:column;gap:12px">
-    <div class="overall">
-      <div class="overall-top"><div><div class="eyebrow">Reset plan</div><b class="num" id="gPct">0%</b></div><span class="note num" id="gCount">0 of 0 steps</span></div>
-      <div class="bar"><i id="gBar" style="width:0%"></i></div>
-      <div class="note">Phase 1 now. Move to the next phase when the current one feels like routine. Steps marked <span class="auto" style="margin:0">auto</span> tick themselves from your workouts.</div>
-    </div>
-    <div id="goalList" style="display:flex;flex-direction:column;gap:10px"></div>
-  </div>
-
-  <div id="view-cal" hidden style="display:flex;flex-direction:column;gap:14px">
-    <div class="totals">
-      <div class="tot"><b class="num" id="tStreak">0</b><span>Week streak</span></div>
-      <div class="tot"><b class="num" id="tBest">0</b><span>Best streak</span></div>
-      <div class="tot"><b class="num" id="tMonth">0</b><span>This month</span></div>
-    </div>
-    <div class="cal-head">
-      <button class="cal-nav" id="calPrev" aria-label="Previous month">‹</button>
-      <h2 id="calTitle">Month</h2>
-      <button class="cal-nav" id="calNext" aria-label="Next month">›</button>
-    </div>
-    <div class="cal" id="cal"></div>
-    <div class="legend">
-      <span><i style="background:var(--accent)"></i>Push</span>
-      <span><i style="background:var(--ink)"></i>Pull</span>
-      <span><i style="background:var(--good)"></i>Legs</span>
-      <span><i style="background:var(--good-soft)"></i>Week hit 3/3</span>
-      <span><i style="background:var(--muted);border-radius:50%;width:7px;height:7px"></i>Stretched</span>
-    </div>
-    <div class="note" id="calNote">Outlined days are your planned lifts. Hit 3 workouts in a week to keep the streak going.</div>
-  </div>
-
   <div id="view-workout" style="display:flex;flex-direction:column;gap:20px">
+  <div class="fit-top"><h2>Workouts</h2>
+  <div class="stats">
+      <div class="stat"><b class="num" id="weekCount">0/3</b><span>This week</span></div>
+      <div class="stat"><b class="num" id="streak">0</b><span>Wk streak</span></div>
+    </div>
+  </div>
   <div class="nudge" id="nudge" role="status" hidden></div>
   <div class="week" id="week" aria-label="This week"></div>
 
@@ -492,17 +476,78 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
       <div class="note">Your phone's calendar sends the alerts, so they work even when the app is closed. iPhone: open the downloaded file and tap Add All. Changed your times? Delete the old Gym events first so you don't get doubles.</div>
     </div>
   </section>
-
-  <section style="display:flex;flex-direction:column;gap:8px">
-    <h2>Backup</h2>
-    <div class="note">Your logs live only on this phone. Save a backup now and then, and restore it if you switch phones or clear your browser.</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="ghost" id="exportBtn">Save backup</button>
-      <label class="ghost" for="importFile" style="display:inline-block">Restore backup</label>
-      <input type="file" id="importFile" accept="application/json,.json" hidden>
-    </div>
-  </section>
   </div>
+  <div id="view-stretch" hidden style="display:flex;flex-direction:column;gap:14px">
+    <div class="st-card" id="stIntro">
+      <div class="st-top">
+        <div><div class="eyebrow">Morning stretch</div><b id="stLen">7 min</b></div>
+        <span class="pill" id="stStatus">Not yet today</span>
+      </div>
+      <div class="st-meta"><span class="num" id="stWeek">0 this week</span><span class="num" id="stStreak">0-day streak</span><span>No equipment, just a floor</span></div>
+      <button class="primary" id="stStart">Start stretching</button>
+      <button class="ghost" id="stMark">Already stretched today? Mark it done</button>
+    </div>
+    <div class="player" id="stPlayer" hidden>
+      <div class="step num" id="pStep"></div>
+      <h2 id="pName"></h2>
+      <div class="side" id="pSide"></div>
+      <div class="ring"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="44" stroke-width="8"/><circle class="bar2" id="pBar" cx="50" cy="50" r="44" stroke-width="8" stroke-dasharray="276.46" stroke-dashoffset="0"/></svg><div class="t num" id="pTime">30</div></div>
+      <div class="cue" id="pCue"></div>
+      <div class="next" id="pNext"></div>
+      <div class="pctl"><button id="pBack">Back</button><button class="main" id="pPause">Pause</button><button id="pSkip">Skip</button></div>
+      <button class="ghost" id="pStop">End routine</button>
+    </div>
+    <h2>The routine</h2>
+    <div class="st-list" id="stList"></div>
+    <div class="note">Move slowly and breathe. Stretch to mild tension, never pain. Stop any stretch that hurts.</div>
+
+    <h2>Stretch reminder</h2>
+    <div class="rem">
+      <div>
+        <div class="eyebrow" style="margin-bottom:6px">Days</div>
+        <div class="days" id="stDays"></div>
+      </div>
+      <div class="rem-row"><label for="stTime">Reminder time</label><input type="time" id="stTime" value="07:30"></div>
+      <div class="rem-btns">
+        <button class="primary" id="stIcs">Add stretch reminder to phone calendar</button>
+        <a class="ghost" id="stGcal" href="#" target="_blank" rel="noopener">Add to Google Calendar ↗</a>
+      </div>
+      <div class="note">This adds only the stretch reminder, so your gym reminders won't double up. iPhone: open the downloaded file and tap Add All.</div>
+    </div>
+  </div>
+  </div>
+
+  <div id="view-goals" hidden style="display:flex;flex-direction:column;gap:12px">
+    <div class="overall">
+      <div class="overall-top"><div><div class="eyebrow">Reset plan</div><b class="num" id="gPct">0%</b></div><span class="note num" id="gCount">0 of 0 steps</span></div>
+      <div class="bar"><i id="gBar" style="width:0%"></i></div>
+      <div class="note">Phase 1 now. Move to the next phase when the current one feels like routine. Steps marked <span class="auto" style="margin:0">auto</span> tick themselves from your workouts.</div>
+    </div>
+    <div id="goalList" style="display:flex;flex-direction:column;gap:10px"></div>
+  </div>
+
+  <div id="view-cal" hidden style="display:flex;flex-direction:column;gap:14px">
+    <div class="totals">
+      <div class="tot"><b class="num" id="tStreak">0</b><span>Week streak</span></div>
+      <div class="tot"><b class="num" id="tBest">0</b><span>Best streak</span></div>
+      <div class="tot"><b class="num" id="tMonth">0</b><span>This month</span></div>
+    </div>
+    <div class="cal-head">
+      <button class="cal-nav" id="calPrev" aria-label="Previous month">‹</button>
+      <h2 id="calTitle">Month</h2>
+      <button class="cal-nav" id="calNext" aria-label="Next month">›</button>
+    </div>
+    <div class="cal" id="cal"></div>
+    <div class="legend">
+      <span><i style="background:var(--accent)"></i>Push</span>
+      <span><i style="background:var(--ink)"></i>Pull</span>
+      <span><i style="background:var(--good)"></i>Legs</span>
+      <span><i style="background:var(--good-soft)"></i>Week hit 3/3</span>
+      <span><i style="background:var(--muted);border-radius:50%;width:7px;height:7px"></i>Stretched</span>
+    </div>
+    <div class="note" id="calNote">Outlined days are your planned lifts. Hit 3 workouts in a week to keep the streak going.</div>
+  </div>
+
 </div>
 <div class="toast" id="toast" role="status"></div>
 
@@ -606,7 +651,7 @@ async function writeDoc(s){
 function isLogged(s){return !!s&&(!!s.done||(!!s.touched&&Object.values(s.sets||{}).flat().some(x=>x.ok||(x.w!==""&&x.r!==""))))}
 function doneList(){return Object.values(sessions).filter(isLogged).sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:(b.finishedAt||b.lastAt||0)-(a.finishedAt||a.lastAt||0))}
 function suggestDay(){const d=doneList().filter(s=>s.date<TODAY);return d.length?ORDER[(ORDER.indexOf(d[0].day)+1)%3]:"push"}
-function refreshCounts(){renderHeader();renderPet();renderCal();if(!$("view-goals").hidden)renderGoals();renderHint()}
+function refreshCounts(){renderHeader();renderToday();renderCal();if(!$("view-goals").hidden)renderGoals();renderHint()}
 function renderHint(){
   const s=sessions[sid(current)], sug=suggestDay(), el=$("suggest");
   if(isLogged(s)) el.textContent=`Logging ${PLAN[current].name} today. This counts toward your week.`;
@@ -731,7 +776,7 @@ function renderCal(){
     w=addDays(w,7);
   }
   $("cal").innerHTML=html;
-  $("calNote").textContent=rem.days.length?`Outlined days are your planned ${[1,2,3,4,5,6,0].filter(d=>rem.days.includes(d)).map(d=>DAYN[d]).join(" / ")} lifts. Hit 3 workouts in a week to keep the streak going.`:"Pick your gym days under Reminders on the Workout tab.";
+  $("calNote").textContent=rem.days.length?`Outlined days are your planned ${[1,2,3,4,5,6,0].filter(d=>rem.days.includes(d)).map(d=>DAYN[d]).join(" / ")} lifts. Hit 3 workouts in a week to keep the streak going.`:"Pick your gym days under Reminders on the Fitness tab.";
   $("tStreak").textContent=$("streak").textContent;
   $("tBest").textContent=bestStreak();
   $("tMonth").textContent=doneList().filter(s=>s.date.slice(0,7)===TODAY.slice(0,7)).length;
@@ -784,7 +829,7 @@ function petMood(){
   return sched?"ready":"rest";
 }
 let editingName=false;
-function renderPet(){
+function renderPet(){if(!$("petArt"))return;
   const days=streakDays(), st=stageOf(days), mood=petMood(), nm=pet.name||"Rivet";
   $("petArt").innerHTML=owlSVG(st,mood);
   $("petStage").textContent=STAGES[st].n+(days?` · Day ${days}`:"");
@@ -813,11 +858,12 @@ const AUTO={
   hatch:()=>doneList().length>0,
   week3:()=>[...new Set(doneList().map(s=>mondayOf(s.date)))].some(m=>weekCount(m)>=3),
   streak4:()=>bestStreak()>=4,
-  owlet:()=>streakDays()>=7
+  owlet:()=>streakDays()>=7,
+  sapling:()=>oakState().stage>=3
 };
 const GOALS=[
   {id:"job",phase:1,title:"Get a job",tasks:["Update resume with the account manager role","Pick 2–3 target roles (account manager, sales, ad agency)","Set up job alerts on Indeed and LinkedIn","Apply to 2 jobs today","Hit 10 applications in week one","Message 3 past coworkers that you're looking","Prep \"tell me about yourself\" and \"why did you leave\"","Land a first interview","Accept an offer"]},
-  {id:"gym",phase:1,title:"Gym consistently",tasks:[{t:"Pick a plan: 3-day Push / Pull / Legs",done:true},{t:"Build the tracker app",done:true},{t:"Get the app on your home screen",done:true},{t:"First Push day: hatch Rivet",auto:"hatch"},{t:"Finish a week at 3/3",auto:"week3"},{t:"Reach Owlet (7-day streak)",auto:"owlet"},{t:"Hit a 4-week streak",auto:"streak4"},"Go up in weight on 3 exercises","Save your first backup"]},
+  {id:"gym",phase:1,title:"Gym consistently",tasks:[{t:"Pick a plan: 3-day Push / Pull / Legs",done:true},{t:"Build the tracker app",done:true},{t:"Get the app on your home screen",done:true},{t:"Log your first workout",auto:"hatch"},{t:"Finish a week at 3/3",auto:"week3"},{t:"Grow your oak to a Sapling",auto:"sapling"},{t:"Hit a 4-week streak",auto:"streak4"},"Go up in weight on 3 exercises","Save your first backup"]},
   {id:"alone",phase:1,title:"Doing things alone",tasks:["Go to the gym solo","Eat at a sit-down spot by yourself","Take a solo drive somewhere new after a 3/3 week","Go to a car meet by yourself"]},
   {id:"schedule",phase:1,title:"Schedule + accountability",tasks:["Set a weekday shape: job search mornings, gym after","Same wake-up time every weekday","Pack your gym bag the night before","Do the Sunday check-in","Tell one friend your goals"]},
   {id:"card",phase:2,title:"Pay off the $800 card",tasks:["Write down balance, interest rate, minimum","Set up autopay for the minimum","Pick a weekly extra payment amount","Card at $400","Card at $0"]},
@@ -966,7 +1012,7 @@ function finishStretch(completed){
   try{pl.wake&&pl.wake.release()}catch(e){}
   $("stPlayer").hidden=true; $("stIntro").hidden=false;
   if(completed){logStretch();beep(1046,300);buzz([120,80,120]);toast("Morning stretch done. Nice start to the day.")}
-  renderStretch(); renderCal();
+  renderStretch(); renderCal(); renderToday();
 }
 function stretchRem(){return Object.assign({time:"07:30",days:[0,1,2,3,4,5,6]},rem.stretch||{})}
 function buildStretchIcs(){
@@ -1035,7 +1081,7 @@ function dyIsNow(it){
   const d=new Date(),now=d.getHours()*60+d.getMinutes();return now>=s&&now<(e!=null&&e>s?e:s+30);
 }
 function dyEl(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n}
-function renderDaily(){
+function renderDaily(){setTimeout(renderToday,0);
   const isDay=dyTab==="day", tk=iso(new Date());
   $("dySegDay").setAttribute("aria-selected",String(isDay)); $("dySegTpl").setAttribute("aria-selected",String(!isDay));
   $("dyPrev").hidden=!isDay; $("dyNext").hidden=!isDay; $("dyToday").hidden=!isDay||dyView===tk;
@@ -1127,7 +1173,95 @@ function closeDySheet(){$("dySheetBg").hidden=true;dyEditing=null}
 function dyAsk(text,yes,fn){dyConfirmFn=fn;$("dyConfirmText").textContent=text;$("dyYes").textContent=yes;$("dyConfirm").hidden=false}
 function dyHideAsk(){dyConfirmFn=null;$("dyConfirm").hidden=true}
 function dyGo(k){dyView=k;dyHideAsk();renderDaily()}
-function renderAll(){renderStretchRem();renderNudge();renderReminders();renderHeader();renderPet();renderTabs();renderSession();renderHistory();renderCal();if(!$("view-goals").hidden)renderGoals()}
+// ---- Oak: grows from the whole day (Plan blocks, workouts, stretches). Never resets. ----
+const OAK=[{n:"Acorn",p:0},{n:"Sprout",p:6},{n:"Seedling",p:25},{n:"Sapling",p:70},{n:"Young oak",p:160},{n:"Oak",p:300},{n:"Mighty oak",p:520}];
+const oakStageAt=t=>{let i=0;OAK.forEach((x,k)=>{if(t>=x.p)i=k});return i};
+let oakGrewAt=0;
+function oakState(){
+  const wset=new Set(doneList().map(x=>x.date)), sset=new Set(stretchDays);
+  const pts=k=>{let plan=0;const d=dyDays[k];if(Array.isArray(d)){const c=d.filter(i=>!i.moved);if(c.length)plan=Math.round(c.filter(i=>i.done).length/c.length*5)}
+    const w=wset.has(k)?3:0, st=sset.has(k)?2:0; return {plan,w,st,total:plan+w+st}};
+  const today=pts(TODAY);
+  const dates=[...wset,...sset,...Object.keys(dyDays).filter(k=>Array.isArray(dyDays[k])&&dyDays[k].some(i=>i.done))].filter(k=>k<=TODAY).sort();
+  if(!dates.length) return {total:0,stage:0,today,streak:0,rings:0,health:"ok",prog:0};
+  let total=0,rings=0,idle=0,k=dates[0];
+  while(k<=TODAY){const t=pts(k).total;
+    if(t>0){total+=t;idle=0}else if(k<TODAY){idle++;if(idle>=3)total=Math.max(OAK[oakStageAt(total)].p,total-2)}
+    if(t>=3)rings++; k=addDays(k,1)}
+  let streak=0,d=today.total>=3?TODAY:addDays(TODAY,-1); while(d>=dates[0]&&pts(d).total>=3){streak++;d=addDays(d,-1)}
+  let dry=0; d=addDays(TODAY,-1); while(d>=dates[0]&&pts(d).total===0){dry++;d=addDays(d,-1)}
+  const health=today.total>0?"ok":dry>=5?"wilt":dry>=2?"dry":"ok";
+  const stage=oakStageAt(total), nx=OAK[stage+1];
+  return {total,stage,today,streak,rings,health,prog:nx?(total-OAK[stage].p)/(nx.p-OAK[stage].p):1};
+}
+const OAK_CAN={
+  3:{w:7,h:62,br:[],c:[[100,100,18,1],[86,108,13,0],[114,108,13,2],[100,86,13,2]]},
+  4:{w:11,h:78,br:[[100,128,80,110],[100,120,122,106]],c:[[100,86,26,1],[74,100,19,0],[126,98,20,2],[86,72,18,2],[116,70,18,0],[100,62,15,1],[60,110,12,1],[140,108,12,0]]},
+  5:{w:17,h:80,br:[[100,124,70,104],[100,116,132,98],[100,108,92,86]],c:[[100,84,32,1],[66,98,24,0],[134,96,25,2],[80,64,24,2],[122,60,24,0],[100,48,20,1],[48,112,16,1],[152,110,16,0],[60,76,16,2],[142,74,17,1]]},
+  6:{w:24,h:82,br:[[100,124,58,100],[100,114,144,94],[100,106,84,78],[100,104,118,76]],c:[[100,80,36,1],[62,96,27,0],[138,94,28,2],[76,58,27,2],[124,54,27,0],[100,38,22,1],[38,112,18,1],[162,110,18,0],[52,72,18,2],[148,70,19,1],[30,96,14,2],[170,94,14,1]]}
+};
+function oakSVG(st,health,prog){
+  const sh=health==="wilt"?["d0","d1","d2"]:health==="dry"?["l0","d1","l2"]:["l0","l1","l2"];
+  const k=((0.9+0.1*Math.min(1,Math.max(0,prog)))*[2.1,2,1.6,1.3,1.08,1,0.96][st]).toFixed(3);
+  let g=`<ellipse class="tz-soil" cx="100" cy="183" rx="${40+st*9}" ry="9"/><ellipse class="tz-soildk" cx="100" cy="181" rx="${30+st*7}" ry="4" opacity=".5"/>`;
+  let t="";
+  if(st===0){
+    t=`<ellipse class="tz-acorn" cx="100" cy="166" rx="12" ry="14"/><ellipse class="tz-cap" cx="100" cy="155" rx="14" ry="7"/><rect class="tz-cap" x="98.5" y="144" width="3" height="7" rx="1.5"/>`;
+  }else if(st<=2){
+    const top=st===1?150:126;
+    t=`<path class="tz-stem" d="M100 181 Q${st===1?98:103} ${(181+top)/2} 100 ${top}"/>`;
+    const lv=st===1?[[91,152,-30,0],[109,148,30,1]]:[[90,156,-25,0],[110,150,25,1],[92,136,-30,1],[109,128,30,0]];
+    t+=lv.map(([x,y,r,c])=>`<ellipse class="tz-${sh[c]}" cx="${x}" cy="${y}" rx="${st===1?10:12}" ry="${st===1?5:6}" transform="rotate(${r} ${x} ${y})"/>`).join("");
+    if(st===1) t+=`<ellipse class="tz-cap" cx="106" cy="179" rx="6" ry="3"/>`;
+  }else{
+    const C=OAK_CAN[st], top=180-C.h, w=C.w;
+    let roots="";
+    if(st>=5) roots=`<path class="tz-root" d="M${100-w*0.6} 179 Q${100-w*1.4} 182 ${100-w*2} 184"/><path class="tz-root" d="M${100+w*0.6} 179 Q${100+w*1.4} 182 ${100+w*2} 185"/>`;
+    const trunk=`<path class="tz-bark" d="M${100-w/2-w*0.35} 181 Q${100-w/2} 170 ${100-w*0.38} ${top+12} L${100-w*0.28} ${top} L${100+w*0.28} ${top} L${100+w*0.38} ${top+12} Q${100+w/2} 170 ${100+w/2+w*0.35} 181 Z"/><path class="tz-barkdk" d="M${100+w*0.05} 178 L${100+w*0.18} ${top+16} L${100+w*0.3} ${top+16} L${100+w*0.38} 178 Z" opacity=".55"/>`;
+    const brs=C.br.map(([x1,y1,x2,y2])=>`<path class="tz-br" stroke-width="${Math.max(3,w*0.32)}" d="M${x1} ${y1} Q${(x1+x2)/2} ${Math.min(y1,y2)-2} ${x2} ${y2}"/>`).join("");
+    const drop=health==="ok"?0:health==="dry"?2:4;
+    let cs=C.c; if(health==="wilt") cs=cs.filter((_,i)=>i%4!==3);
+    const shadow=cs.map(([x,y,r])=>`<circle class="tz-shadow" cx="${x}" cy="${y+drop+4}" r="${r}"/>`).join("");
+    const leaves=cs.map(([x,y,r,c])=>`<circle class="tz-${sh[c]}" cx="${x}" cy="${y+drop}" r="${r}"/>`).join("");
+    let acorns="";
+    if(st===6&&health!=="wilt") acorns=[[70,112],[128,116],[152,96],[52,92],[112,70]].map(([x,y])=>`<ellipse class="tz-acorn" cx="${x}" cy="${y+drop}" rx="3" ry="4"/><ellipse class="tz-cap" cx="${x}" cy="${y+drop-3}" rx="3.6" ry="2"/>`).join("");
+    let fallen="";
+    if(health==="wilt") fallen=[[70,182,20],[132,184,-15],[150,181,35]].map(([x,y,r])=>`<ellipse class="tz-d1" cx="${x}" cy="${y}" rx="5" ry="2.4" transform="rotate(${r} ${x} ${y})"/>`).join("");
+    t=roots+trunk+brs+`<g class="sway">${shadow}${leaves}${acorns}</g>`+fallen;
+  }
+  return `<svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMax meet" aria-hidden="true">${g}<g transform="translate(100 182) scale(${k}) translate(-100 -182)">${t}</g></svg>`;
+}
+function renderToday(){
+  if(!$("oakArt")) return;
+  const o=oakState(), nx=OAK[o.stage+1];
+  $("oakArt").innerHTML=oakSVG(o.stage,o.health,o.prog);
+  $("oakStage").textContent=OAK[o.stage].n+(o.health==="dry"?" · thirsty":o.health==="wilt"?" · drooping":"");
+  const t=o.today.total;
+  $("oakMsg").textContent=o.total===0?"Plant your acorn. Check off a Plan block, stretch, or log a workout to start growing."
+    :o.health==="wilt"?"Your oak's leaves are drooping. One small win today brings them back."
+    :o.health==="dry"?"Your oak is thirsty. Anything you do today waters it."
+    :t>=8?`+${t} growth today. Huge day. Your oak is loving this.`
+    :t>0?`+${t} growth today. Keep it going.`:"Nothing yet today. Start with one block.";
+  $("oakBar").style.width=Math.max(3,Math.round(o.prog*100))+"%";
+  $("oakNext").textContent=nx?`${Math.max(1,Math.ceil(nx.p-o.total))} growth until ${nx.n}`:"Fully grown. Keep it healthy.";
+  $("oakToday").textContent=t+"/10"; $("oakStreak").textContent=o.streak; $("oakRings").textContent=o.rings;
+  // today at a glance
+  const items=dayItems(TODAY), counted=items.filter(i=>!i.moved), dn=counted.filter(i=>i.done).length, left=counted.filter(i=>!i.done);
+  const dow=new Date(TODAY+"T12:00:00").getDay(), lifted=doneList().some(x=>x.date===TODAY), stretched=stretchDays.includes(TODAY);
+  const rows=[
+    {go:"daily",title:"Plan",ok:counted.length>0&&!left.length,d:counted.length?`${dn} of ${counted.length} blocks done`+(left.length?` · Next: ${left[0].title}${left[0].start?" at "+fmtTime(left[0].start):""}`:""):"Nothing planned yet",pts:o.today.plan?`+${o.today.plan}/5`:"+5"},
+    {go:"fitness",sub:"workout",title:"Workout",ok:lifted,d:lifted?"Logged today":rem.days.includes(dow)?`${PLAN[nextDay()].name} day · not logged yet`:"Rest day. Lift anyway if you feel good.",pts:lifted?"+3":"+3"},
+    {go:"fitness",sub:"stretch",title:"Stretch",ok:stretched,d:stretched?"Done today":"7-minute morning routine",pts:"+2"}
+  ];
+  const list=$("todayList"); list.replaceChildren();
+  rows.forEach(r=>{const b=document.createElement("button");b.type="button";b.className="trow"+(r.ok?" ok":"");b.dataset.go=r.go;if(r.sub)b.dataset.sub=r.sub;
+    const tt=document.createElement("b");tt.textContent=(r.ok?"✓ ":"")+r.title;const dd=document.createElement("span");dd.className="d";dd.textContent=r.d;
+    const pp=document.createElement("span");pp.className="pts num";pp.textContent=r.pts;b.append(tt,pp,dd);list.append(b)});
+  let prev=null; try{prev=localStorage.getItem("ppl.oakStage")}catch(e){}
+  if(prev!==null&&o.stage>+prev){toast(`Your oak grew into a ${OAK[o.stage].n}!`);oakGrewAt=Date.now()}
+  try{localStorage.setItem("ppl.oakStage",String(o.stage))}catch(e){}
+}
+function renderAll(){renderToday();renderStretchRem();renderNudge();renderReminders();renderHeader();renderPet();renderTabs();renderSession();renderHistory();renderCal();if(!$("view-goals").hidden)renderGoals()}
 
 let tt;function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2200)}
 function setNote(m){$("syncNote").textContent=m}
@@ -1242,27 +1376,30 @@ $("goalList").addEventListener("change",e=>{
   if(g&&e.target.checked&&g.tasks.every((_,i)=>taskInfo(g,i).checked)) toast(`${g.title}: done. Huge.`);
 });
 $("goalList").addEventListener("toggle",e=>{const d=e.target.closest&&e.target.closest("details");if(!d)return;d.open?openGoals.add(d.dataset.goal):openGoals.delete(d.dataset.goal)},true);
-$("petArt").addEventListener("click",()=>{const a=$("petArt").firstElementChild;if(!a)return;a.classList.remove("hop");void a.getBoundingClientRect();a.classList.add("hop")});
-$("petNameRow").addEventListener("click",e=>{
-  if(!e.target.closest("#renameBtn")) return;
-  editingName=true;
-  $("petNameRow").innerHTML=`<input id="petNameInput" maxlength="16" aria-label="Owl name">`;
-  const inp=$("petNameInput"); inp.value=pet.name; inp.focus(); inp.select();
-  const done=()=>{const v=inp.value.trim().slice(0,16);if(v&&v!==pet.name){pet.name=v;savePet()}editingName=false;renderPet()};
-  inp.addEventListener("keydown",k=>{if(k.key==="Enter")inp.blur();if(k.key==="Escape"){inp.value=pet.name;inp.blur()}});
-  inp.addEventListener("blur",done,{once:true});
-});
-document.querySelector(".views").addEventListener("click",e=>{
-  const b=e.target.closest(".view-btn"); if(!b) return;
-  const v=b.dataset.view;
-  document.querySelectorAll(".view-btn").forEach(x=>x.setAttribute("aria-selected",String(x===b)));
+let fitSub="workout";
+function showFit(){
+  $("fitW").setAttribute("aria-selected",String(fitSub==="workout")); $("fitS").setAttribute("aria-selected",String(fitSub==="stretch"));
+  $("view-workout").hidden=fitSub!=="workout"; $("view-stretch").hidden=fitSub!=="stretch";
+  if(fitSub==="stretch") renderStretch();
+}
+function showView(v,sub){
+  document.querySelectorAll(".view-btn").forEach(x=>x.setAttribute("aria-selected",String(x.dataset.view===v)));
   moveInd(true);
-  $("view-workout").hidden=v!=="workout"; $("view-cal").hidden=v!=="cal"; $("view-goals").hidden=v!=="goals"; $("view-stretch").hidden=v!=="stretch"; $("view-daily").hidden=v!=="daily";
+  ["today","daily","fitness","goals","cal"].forEach(k=>{$("view-"+k).hidden=k!==v});
+  if(v==="fitness"){if(sub)fitSub=sub;showFit()}
+  if(v==="today") renderToday();
   if(v==="daily") renderDaily();
-  if(v==="stretch") renderStretch();
   if(v==="goals") renderGoals();
   if(v==="cal") renderCal();
+  const t=$("views").getBoundingClientRect().top; if(t<0) window.scrollBy({top:t-8,behavior:"smooth"});
+}
+document.querySelector(".views").addEventListener("click",e=>{
+  const b=e.target.closest(".view-btn"); if(!b) return;
+  showView(b.dataset.view);
 });
+$("fitW").addEventListener("click",()=>{fitSub="workout";showFit()});
+$("fitS").addEventListener("click",()=>{fitSub="stretch";showFit()});
+$("todayList").addEventListener("click",e=>{const r=e.target.closest(".trow");if(!r)return;showView(r.dataset.go,r.dataset.sub)});
 $("calPrev").addEventListener("click",()=>shiftMonth(-1));
 $("calNext").addEventListener("click",()=>shiftMonth(1));
 $("tabs").addEventListener("click",e=>{const b=e.target.closest(".tab");if(!b)return;current=b.dataset.day;renderTabs();renderSession()});
@@ -1283,15 +1420,10 @@ $("exercises").addEventListener("click",e=>{
 });
 $("cardio").addEventListener("click",()=>{const s=getSession(current);s.cardio=!s.cardio;persist(s);$("cardio").setAttribute("aria-pressed",String(s.cardio))});
 $("finish").addEventListener("click",()=>{
-  const before=stageOf(streakDays());
   const s=getSession(current);
   s.done=!s.done; if(s.done) s.finishedAt=Date.now();
   persist(s); renderAll();
-  const after=stageOf(streakDays());
-  if(s.done){
-    const art=$("petArt").firstElementChild; if(art){art.classList.add("hop")}
-    toast(after>before?`${pet.name} ${after===1?"hatched! Say hi.":"grew into a "+STAGES[after].n+"!"}`:`${PLAN[current].name} day logged. Nice work.`);
-  }
+  if(s.done&&Date.now()-oakGrewAt>800) toast(`${PLAN[current].name} day logged. +3 growth for your oak.`);
 });
 
 // boot

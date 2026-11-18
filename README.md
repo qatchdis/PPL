@@ -1,10 +1,13 @@
-# Push Pull Legs
+# Oak
 
-A 3-day machine-based Push/Pull/Legs gym tracker that installs to your phone's home screen.
+A daily-life app that installs to your phone's home screen.
 
-- Logs sets, weights and reps, pre-filled from last time
-- Streak calendar showing which weeks hit 3/3
-- Rivet the owl, who grows as the streak goes
-- Works offline; data stays on the phone (use Backup to save a copy)
+- **Today**: an oak tree that grows from everything you do, plus today at a glance
+- **Plan**: time-blocked daily checklist with schedules assigned to weekdays
+- **Fitness**: Push / Pull / Legs workout logging and a guided morning stretch
+- **Goals**: the reset plan as a checklist
+- **Calendar**: workouts, stretches and weekly streaks
+
+Works offline. Data stays on the phone (use Backup on the Today tab to save a copy).
 
 Live at https://qatchdis.github.io/PPL/
