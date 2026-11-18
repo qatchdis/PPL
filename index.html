@@ -248,6 +248,21 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .to-row button{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:1.1rem;cursor:pointer}
 .to-row button:disabled{opacity:.3;cursor:default}
 .set-h{font:700 1.15rem var(--display);text-transform:uppercase;letter-spacing:.02em;margin:10px 0 0;padding-top:12px;border-top:1px solid var(--line)}
+.todo{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.td-add{display:flex;gap:8px}
+.td-add input{flex:1;min-width:0;min-height:44px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:500 16px var(--body)}
+.td-add .primary{width:auto;flex:none;font-size:1rem;padding:0 16px}
+.td-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.td-row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.td-list .td-row:first-child{border-top:0}
+.td-row .bchk{margin:0}
+.td-text{background:none;border:0;padding:4px 0;text-align:left;color:var(--ink);font:500 .98rem var(--body);cursor:text;min-width:0;overflow-wrap:anywhere}
+.td-row.done .td-text{color:var(--muted)}
+.td-row.done .td-t{text-decoration:line-through}
+.td-row .td-when{display:block;font-size:.72rem;color:var(--muted);text-decoration:none}
+.td-edit{width:100%;min-width:0;min-height:38px;padding:6px 10px;border:1px solid var(--accent);border-radius:8px;background:var(--bg);color:var(--ink);font:500 16px var(--body)}
+.td-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding-top:4px}
+.td-empty{color:var(--muted);font-size:.9rem;padding:6px 0}
 .ghost{font:600 .85rem var(--body);border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:9px;padding:7px 12px;cursor:pointer}
 .hist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
 .hrow{display:grid;grid-template-columns:1fr auto auto;gap:12px;padding:11px 14px;border-top:1px solid var(--line);align-items:center;font-size:.9rem}
@@ -417,6 +432,19 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
     </section>
     <h2>Today</h2>
     <div class="tlist" id="todayList"></div>
+    <h2>To-do</h2>
+    <div class="todo">
+      <form class="td-add" id="tdForm" novalidate>
+        <input id="tdNew" maxlength="120" autocomplete="off" enterkeyhint="done" placeholder="Add a to-do" aria-label="New to-do">
+        <button class="primary" type="submit">Add</button>
+      </form>
+      <ul class="td-list" id="tdList"></ul>
+      <div class="td-foot" id="tdFoot" hidden>
+        <button class="linkbtn" type="button" id="tdShowDone">Show done</button>
+        <button class="linkbtn" type="button" id="tdClear" hidden>Clear done</button>
+      </div>
+      <ul class="td-list" id="tdDone" hidden></ul>
+    </div>
     <div class="note">Every block you check off, workout you log and stretch you finish grows your oak. A day with 3 or more growth adds a ring. Miss a few days and the leaves droop, but it never resets.</div>
     <section style="display:flex;flex-direction:column;gap:8px">
     <h2>Backup</h2>
@@ -680,6 +708,12 @@ function figSVG(id,label){
   return `<svg class="fig" viewBox="0 0 120 90" role="img" aria-label="${label} illustration">${f.m}${f.b.map(poly).join("")}<circle class="head" cx="${f.h[0]}" cy="${f.h[1]}" r="6.5"/><path class="arr" d="${d}"/><polygon class="tip" points="${tip}"/></svg>`;
 }
 const ORDER = ["push","pull","legs"];
+// ---- To-do: one-off tasks on Today ----
+const TD_KEY="ppl.todos.v1";
+let todos=[];
+try{const v=JSON.parse(localStorage.getItem(TD_KEY)||"[]");if(Array.isArray(v))todos=v}catch(e){}
+function saveTodos(){try{localStorage.setItem(TD_KEY,JSON.stringify(todos))}catch(e){toast("Couldn't save. Your phone's storage may be full.")}}
+let tdShowDone=false, tdEditing=null, tdDelArm=null;
 // ---- Activities: hikes and runs ----
 const ACT_KEY="ppl.acts.v1";
 let acts=[];
@@ -1411,7 +1445,7 @@ function renderToday(){
 const BK_KEY="ppl.lastBackup", BK_SNOOZE="ppl.backupSnooze";
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
-function hasAnyData(){return acts.length>0||Object.keys(sessions).length>0||stretchDays.length>0||Object.keys(dyDays).length>0||Object.values(goalState).some(Boolean)}
+function hasAnyData(){return todos.length>0||acts.length>0||Object.keys(sessions).length>0||stretchDays.length>0||Object.keys(dyDays).length>0||Object.values(goalState).some(Boolean)}
 function renderBackup(){
   const last=+lsGet(BK_KEY)||0, snooze=+lsGet(BK_SNOOZE)||0, now=Date.now(), days=last?Math.floor((now-last)/864e5):null;
   $("bkLast").textContent=last?`Last backup: ${days===0?"today":days===1?"yesterday":days+" days ago"} (${new Date(last).toLocaleDateString(undefined,{month:"short",day:"numeric"})})`:"No backup yet.";
@@ -1420,7 +1454,7 @@ function renderBackup(){
   if(due) $("bkNudgeText").textContent=last?`It's been ${days} days. One tap, then choose Save to Files and pick iCloud Drive.`:"You haven't backed up yet. One tap, then choose Save to Files and pick iCloud Drive.";
 }
 async function doBackup(){
-  const data={app:"oak",version:2,exported:new Date().toISOString(),sessions,pet,goals:goalState,stretchDays,acts,daily:{tpls:dyTpls,days:dyDays,dayTpl:dyDayTpl},reminders:rem};
+  const data={app:"oak",version:2,exported:new Date().toISOString(),sessions,pet,goals:goalState,stretchDays,acts,todos,daily:{tpls:dyTpls,days:dyDays,dayTpl:dyDayTpl},reminders:rem};
   const name=`oak-backup-${iso(new Date())}.json`, text=JSON.stringify(data,null,1);
   const done=()=>{lsSet(BK_KEY,String(Date.now()));renderBackup();toast("Backup saved")};
   try{
@@ -1431,12 +1465,54 @@ async function doBackup(){
   document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
   done();
 }
-function renderAll(){renderToday();renderBackup();renderStretchRem();renderNudge();renderReminders();renderHeader();renderPet();renderTabs();renderSession();renderHistory();renderCal();if(!$("view-goals").hidden)renderGoals()}
+function tdRow(t){
+  const li=document.createElement("li"); li.className="td-row"+(t.done?" done":"");
+  const cb=document.createElement("input"); cb.type="checkbox"; cb.className="bchk"; cb.id="td-"+t.id; cb.checked=!!t.done; cb.setAttribute("aria-label",(t.done?"Mark not done: ":"Mark done: ")+t.text);
+  cb.addEventListener("change",()=>{t.done=cb.checked;t.doneAt=cb.checked?Date.now():0;saveTodos();renderTodos();if(cb.checked)toast("Done")});
+  li.append(cb);
+  if(tdEditing===t.id){
+    const inp=document.createElement("input"); inp.className="td-edit"; inp.id="tde-"+t.id; inp.value=t.text; inp.maxLength=120; inp.setAttribute("enterkeyhint","done"); inp.setAttribute("aria-label","Edit to-do");
+    let cancel=false;
+    inp.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.isComposing){e.preventDefault();inp.blur()}else if(e.key==="Escape"){cancel=true;inp.blur()}});
+    inp.addEventListener("blur",()=>{const v=inp.value.replace(/\s+/g," ").trim();tdEditing=null;if(!cancel){if(v)t.text=v;else todos=todos.filter(z=>z.id!==t.id);saveTodos()}renderTodos()});
+    li.append(inp); setTimeout(()=>{inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length)},0);
+  }else{
+    const b=document.createElement("button"); b.type="button"; b.className="td-text"; const tt=document.createElement("span");tt.className="td-t";tt.textContent=t.text;b.append(tt); b.setAttribute("aria-label","Edit: "+t.text);
+    if(t.done&&t.doneAt){const w=document.createElement("span");w.className="td-when";w.textContent="Done "+new Date(t.doneAt).toLocaleDateString(undefined,{month:"short",day:"numeric"});b.append(w)}
+    b.addEventListener("click",()=>{tdEditing=t.id;tdDelArm=null;renderTodos()});
+    li.append(b);
+  }
+  const x=document.createElement("button"); x.type="button"; x.className="act-x"+(tdDelArm===t.id?" sure":""); x.textContent=tdDelArm===t.id?"Delete":"×"; x.setAttribute("aria-label","Delete: "+t.text);
+  x.addEventListener("mousedown",e=>e.preventDefault());
+  x.addEventListener("click",()=>{if(tdDelArm===t.id){todos=todos.filter(z=>z.id!==t.id);tdDelArm=null;saveTodos();renderTodos()}else{tdDelArm=t.id;renderTodos();setTimeout(()=>{if(tdDelArm===t.id){tdDelArm=null;renderTodos()}},3000)}});
+  li.append(x);
+  return li;
+}
+function renderTodos(){
+  if(!$("tdList")) return;
+  const open=todos.filter(t=>!t.done).sort((a,b)=>(b.at||0)-(a.at||0)), done=todos.filter(t=>t.done).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0));
+  const L=$("tdList"); L.replaceChildren();
+  if(!open.length){const e=document.createElement("li");e.className="td-empty";e.textContent=done.length?"All caught up.":"Nothing on your list. Add little things here as they come up.";L.append(e)}
+  open.forEach(t=>L.append(tdRow(t)));
+  $("tdFoot").hidden=!done.length;
+  $("tdShowDone").textContent=tdShowDone?"Hide done":`Show done (${done.length})`;
+  $("tdClear").hidden=!tdShowDone||!done.length;
+  const D=$("tdDone"); D.replaceChildren(); D.hidden=!tdShowDone||!done.length;
+  if(tdShowDone) done.forEach(t=>D.append(tdRow(t)));
+}
+function renderAll(){renderToday();renderTodos();renderBackup();renderStretchRem();renderNudge();renderReminders();renderHeader();renderPet();renderTabs();renderSession();renderHistory();renderCal();if(!$("view-goals").hidden)renderGoals()}
 
 let tt;function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2200)}
 function setNote(m){$("syncNote").textContent=m}
 
 // events
+$("tdForm").addEventListener("submit",e=>{
+  e.preventDefault(); const v=$("tdNew").value.replace(/\s+/g," ").trim(); if(!v) return;
+  todos.push({id:"t"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),text:v.slice(0,120),done:false,at:Date.now(),doneAt:0});
+  saveTodos(); $("tdNew").value=""; renderTodos(); $("tdNew").focus();
+});
+$("tdShowDone").addEventListener("click",()=>{tdShowDone=!tdShowDone;renderTodos()});
+$("tdClear").addEventListener("click",()=>{const n=todos.filter(t=>t.done).length;todos=todos.filter(t=>!t.done);saveTodos();tdShowDone=false;renderTodos();toast(`Cleared ${n} done`)});
 // ---- Tab order (Settings): saved per phone; the app always opens on Today ----
 const TAB_KEY="ppl.tabOrder", TAB_DEFAULT=["today","daily","fitness","goals","cal"], TAB_NAMES={today:"Today",daily:"Plan",fitness:"Fitness",goals:"Goals",cal:"Calendar"};
 let tabOrder=(()=>{try{const v=JSON.parse(localStorage.getItem(TAB_KEY)||"null");if(Array.isArray(v)&&v.length===TAB_DEFAULT.length&&TAB_DEFAULT.every(k=>v.includes(k)))return v}catch(e){}return [...TAB_DEFAULT]})();
@@ -1714,6 +1790,7 @@ $("importFile").addEventListener("change",async e=>{
     if(!d||typeof d.sessions!=="object") throw 0;
     sessions=Object.assign({},sessions,d.sessions); saveLocal();
     if(d.daily&&typeof d.daily==="object"){if(Array.isArray(d.daily.tpls)&&d.daily.tpls.length)dyTpls=d.daily.tpls;else if(Array.isArray(d.daily.tpl))dyTpls=dyFromOld(d.daily.tpl);dyTplSel=dyTpls[0].id;if(d.daily.dayTpl&&typeof d.daily.dayTpl==="object")dyDayTpl=Object.assign({},dyDayTpl,d.daily.dayTpl);if(d.daily.days&&typeof d.daily.days==="object")dyDays=Object.assign({},dyDays,d.daily.days);saveDaily()}
+    if(Array.isArray(d.todos)){const ids=new Set(todos.map(t=>t.id));todos=todos.concat(d.todos.filter(t=>t&&t.id&&typeof t.text==="string"&&!ids.has(t.id)));saveTodos()}
     if(Array.isArray(d.acts)){const ids=new Set(acts.map(a=>a.id));acts=acts.concat(d.acts.filter(a=>a&&a.id&&!ids.has(a.id)));saveActs()}
     if(Array.isArray(d.stretchDays)){stretchDays=[...new Set([...stretchDays,...d.stretchDays])].sort();saveStretch()}
     if(d.goals&&typeof d.goals==="object"){goalState=Object.assign({},goalState,d.goals);saveGoals()}
