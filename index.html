@@ -338,13 +338,16 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
       <div class="eyebrow" id="dateLabel">Today</div>
       <h1>Oak</h1>
     </div>
-    <button class="ghost hdr-btn" id="tabEdit" type="button" aria-label="Arrange tabs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16M7 4l-3 3M7 4l3 3M17 20V4M17 20l-3-3M17 20l3-3"/></svg>Tabs</button>
+    <button class="ghost hdr-btn" id="tabEdit" type="button" aria-label="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Settings</button>
   </header>
 
   <div class="sheet-bg" id="tabSheetBg" hidden>
     <div class="sheet" role="dialog" aria-labelledby="tabSheetTitle">
-      <h2 id="tabSheetTitle">Arrange tabs</h2>
-      <div class="note">Move tabs up or down. Oak opens on whichever tab is first.</div>
+      <h2 id="tabSheetTitle">Settings</h2>
+      <div>
+        <div class="eyebrow" style="margin-bottom:4px">Tab order</div>
+        <div class="note">Move tabs up or down to change their order. Oak always opens on Today.</div>
+      </div>
       <ol class="tab-order" id="tabOrderList"></ol>
       <div class="dy-tools"><button class="primary" id="tabDone" type="button" style="flex:0 1 auto">Done</button><button class="ghost" id="tabReset" type="button">Reset to default</button></div>
     </div>
@@ -1434,7 +1437,7 @@ let tt;function toast(m){const t=$("toast");t.textContent=m;t.classList.add("sho
 function setNote(m){$("syncNote").textContent=m}
 
 // events
-// ---- Tab order: saved per phone; the first tab is where the app opens ----
+// ---- Tab order (Settings): saved per phone; the app always opens on Today ----
 const TAB_KEY="ppl.tabOrder", TAB_DEFAULT=["today","daily","fitness","goals","cal"], TAB_NAMES={today:"Today",daily:"Plan",fitness:"Fitness",goals:"Goals",cal:"Calendar"};
 let tabOrder=(()=>{try{const v=JSON.parse(localStorage.getItem(TAB_KEY)||"null");if(Array.isArray(v)&&v.length===TAB_DEFAULT.length&&TAB_DEFAULT.every(k=>v.includes(k)))return v}catch(e){}return [...TAB_DEFAULT]})();
 function applyTabOrder(){const bar=$("views");tabOrder.forEach(k=>{const b=document.querySelector(`.view-btn[data-view="${k}"]`);if(b)bar.append(b)});moveInd(false)}
@@ -1442,10 +1445,9 @@ function saveTabOrder(){try{localStorage.setItem(TAB_KEY,JSON.stringify(tabOrder
 function renderTabSheet(){
   const ol=$("tabOrderList"); ol.replaceChildren();
   tabOrder.forEach((k,i)=>{
-    const li=document.createElement("li"); li.className="to-row"+(i===0?" first":"");
+    const li=document.createElement("li"); li.className="to-row";
     const n=document.createElement("span"); n.className="to-n num"; n.textContent=i+1;
     const nm=document.createElement("b"); nm.textContent=TAB_NAMES[k];
-    if(i===0){const sm=document.createElement("small");sm.textContent="Opens first";nm.append(sm)}
     const up=document.createElement("button"); up.type="button"; up.textContent="↑"; up.disabled=i===0; up.setAttribute("aria-label","Move "+TAB_NAMES[k]+" up");
     const dn=document.createElement("button"); dn.type="button"; dn.textContent="↓"; dn.disabled=i===tabOrder.length-1; dn.setAttribute("aria-label","Move "+TAB_NAMES[k]+" down");
     up.addEventListener("click",()=>moveTab(i,-1)); dn.addEventListener("click",()=>moveTab(i,1));
@@ -1697,7 +1699,6 @@ sessions=loadLocal();
 current=nextDay();
 renderAll();
 applyTabOrder();
-if(tabOrder[0]!=="today") showView(tabOrder[0]);
 
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
 if(navigator.storage&&navigator.storage.persist){navigator.storage.persist().catch(()=>{})}
