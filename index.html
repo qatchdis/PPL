@@ -247,6 +247,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .to-row small{display:block;font:600 .7rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
 .to-row button{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:1.1rem;cursor:pointer}
 .to-row button:disabled{opacity:.3;cursor:default}
+.set-h{font:700 1.15rem var(--display);text-transform:uppercase;letter-spacing:.02em;margin:10px 0 0;padding-top:12px;border-top:1px solid var(--line)}
 .ghost{font:600 .85rem var(--body);border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:9px;padding:7px 12px;cursor:pointer}
 .hist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
 .hrow{display:grid;grid-template-columns:1fr auto auto;gap:12px;padding:11px 14px;border-top:1px solid var(--line);align-items:center;font-size:.9rem}
@@ -349,7 +350,40 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
         <div class="note">Move tabs up or down to change their order. Oak always opens on Today.</div>
       </div>
       <ol class="tab-order" id="tabOrderList"></ol>
-      <div class="dy-tools"><button class="primary" id="tabDone" type="button" style="flex:0 1 auto">Done</button><button class="ghost" id="tabReset" type="button">Reset to default</button></div>
+      <button class="ghost" id="tabReset" type="button" style="align-self:flex-start">Reset tab order</button>
+      <h3 class="set-h" id="reminders">Gym reminders</h3>
+      <div class="rem">
+        <div>
+          <div class="eyebrow" style="margin-bottom:6px">Gym days</div>
+          <div class="days" id="remDays"></div>
+        </div>
+        <div class="rem-row"><label for="remTime">Gym time</label><input type="time" id="remTime" value="09:00"></div>
+        <div class="note">You'll get a heads-up 30 minutes before, then a "time to go" at the start.</div>
+        <div class="rem-row">
+          <label class="switch" for="remNight"><input type="checkbox" id="remNight" checked> Night-before "pack your bag"</label>
+          <input type="time" id="remNightTime" value="21:00" aria-label="Night-before reminder time">
+        </div>
+        <div class="rem-btns">
+          <button class="primary" id="remIcs">Add to phone calendar</button>
+          <a class="ghost" id="remGcal" href="#" target="_blank" rel="noopener">Add workouts to Google Calendar ↗</a>
+          <a class="ghost" id="remGcalNight" href="#" target="_blank" rel="noopener">Add bag reminder to Google Calendar ↗</a>
+        </div>
+        <div class="note">Your phone's calendar sends the alerts, so they work even when the app is closed. iPhone: open the downloaded file and tap Add All. Changed your times? Delete the old Gym events first so you don't get doubles.</div>
+      </div>
+      <h3 class="set-h">Stretch reminder</h3>
+      <div class="rem">
+        <div>
+          <div class="eyebrow" style="margin-bottom:6px">Days</div>
+          <div class="days" id="stDays"></div>
+        </div>
+        <div class="rem-row"><label for="stTime">Reminder time</label><input type="time" id="stTime" value="07:30"></div>
+        <div class="rem-btns">
+          <button class="primary" id="stIcs">Add stretch reminder to phone calendar</button>
+          <a class="ghost" id="stGcal" href="#" target="_blank" rel="noopener">Add to Google Calendar ↗</a>
+        </div>
+        <div class="note">This adds only the stretch reminder, so your gym reminders won't double up. iPhone: open the downloaded file and tap Add All.</div>
+      </div>
+      <button class="primary" id="tabDone" type="button">Done</button>
     </div>
   </div>
 
@@ -500,27 +534,6 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
     <div class="hist" id="history"></div>
   </section>
 
-  <section style="display:flex;flex-direction:column;gap:8px" id="reminders">
-    <h2>Reminders</h2>
-    <div class="rem">
-      <div>
-        <div class="eyebrow" style="margin-bottom:6px">Gym days</div>
-        <div class="days" id="remDays"></div>
-      </div>
-      <div class="rem-row"><label for="remTime">Gym time</label><input type="time" id="remTime" value="09:00"></div>
-      <div class="note">You'll get a heads-up 30 minutes before, then a "time to go" at the start.</div>
-      <div class="rem-row">
-        <label class="switch" for="remNight"><input type="checkbox" id="remNight" checked> Night-before "pack your bag"</label>
-        <input type="time" id="remNightTime" value="21:00" aria-label="Night-before reminder time">
-      </div>
-      <div class="rem-btns">
-        <button class="primary" id="remIcs">Add to phone calendar</button>
-        <a class="ghost" id="remGcal" href="#" target="_blank" rel="noopener">Add workouts to Google Calendar ↗</a>
-        <a class="ghost" id="remGcalNight" href="#" target="_blank" rel="noopener">Add bag reminder to Google Calendar ↗</a>
-      </div>
-      <div class="note">Your phone's calendar sends the alerts, so they work even when the app is closed. iPhone: open the downloaded file and tap Add All. Changed your times? Delete the old Gym events first so you don't get doubles.</div>
-    </div>
-  </section>
   </div>
   <div id="view-stretch" hidden style="display:flex;flex-direction:column;gap:14px">
     <div class="st-card" id="stIntro">
@@ -546,19 +559,6 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
     <div class="st-list" id="stList"></div>
     <div class="note">Move slowly and breathe. Stretch to mild tension, never pain. Stop any stretch that hurts.</div>
 
-    <h2>Stretch reminder</h2>
-    <div class="rem">
-      <div>
-        <div class="eyebrow" style="margin-bottom:6px">Days</div>
-        <div class="days" id="stDays"></div>
-      </div>
-      <div class="rem-row"><label for="stTime">Reminder time</label><input type="time" id="stTime" value="07:30"></div>
-      <div class="rem-btns">
-        <button class="primary" id="stIcs">Add stretch reminder to phone calendar</button>
-        <a class="ghost" id="stGcal" href="#" target="_blank" rel="noopener">Add to Google Calendar ↗</a>
-      </div>
-      <div class="note">This adds only the stretch reminder, so your gym reminders won't double up. iPhone: open the downloaded file and tap Add All.</div>
-    </div>
   </div>
   <div id="view-activity" hidden style="display:flex;flex-direction:column;gap:14px">
     <form class="rem" id="actForm" novalidate>
@@ -897,7 +897,7 @@ function renderCal(){
     w=addDays(w,7);
   }
   $("cal").innerHTML=html;
-  $("calNote").textContent=rem.days.length?`Outlined days are your planned ${[1,2,3,4,5,6,0].filter(d=>rem.days.includes(d)).map(d=>DAYN[d]).join(" / ")} lifts. Gym, hikes and runs all count. Hit 3 in a week to keep the streak going.`:"Pick your gym days under Reminders on the Fitness tab.";
+  $("calNote").textContent=rem.days.length?`Outlined days are your planned ${[1,2,3,4,5,6,0].filter(d=>rem.days.includes(d)).map(d=>DAYN[d]).join(" / ")} lifts. Gym, hikes and runs all count. Hit 3 in a week to keep the streak going.`:"Pick your gym days under Gym reminders in Settings.";
   $("tStreak").textContent=$("streak").textContent;
   $("tBest").textContent=bestStreak();
   $("tMonth").textContent=doneList().filter(s=>s.date.slice(0,7)===TODAY.slice(0,7)).length;
@@ -1456,7 +1456,7 @@ function renderTabSheet(){
 }
 function moveTab(i,d){const j=i+d;if(j<0||j>=tabOrder.length)return;[tabOrder[i],tabOrder[j]]=[tabOrder[j],tabOrder[i]];saveTabOrder();applyTabOrder();renderTabSheet();
   const btns=[...$("tabOrderList").querySelectorAll("button")];const f=btns[j*2+(d<0?0:1)];if(f&&!f.disabled)f.focus()}
-$("tabEdit").addEventListener("click",()=>{renderTabSheet();$("tabSheetBg").hidden=false});
+$("tabEdit").addEventListener("click",()=>{renderTabSheet();renderReminders();renderStretchRem();$("tabSheetBg").hidden=false});
 $("tabDone").addEventListener("click",()=>{$("tabSheetBg").hidden=true});
 $("tabReset").addEventListener("click",()=>{tabOrder=[...TAB_DEFAULT];saveTabOrder();applyTabOrder();renderTabSheet();toast("Tabs reset")});
 $("tabSheetBg").addEventListener("click",e=>{if(e.target===$("tabSheetBg"))$("tabSheetBg").hidden=true});
