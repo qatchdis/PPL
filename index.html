@@ -219,6 +219,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 @keyframes sway{0%,100%{transform:rotate(-.7deg)}50%{transform:rotate(.7deg)}}
 .sway{transform-origin:100px 180px;transform-box:view-box;animation:sway 7s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){.sway{animation:none}}
+.bk-nudge{display:flex;flex-direction:column;gap:10px;background:var(--accent-soft);border:1px solid var(--accent);border-radius:14px;padding:12px 14px}
+.bk-nudge b{font:700 1.1rem var(--display);text-transform:uppercase;letter-spacing:.02em;color:var(--accent)}
+.bk-nudge .row2{display:flex;gap:8px;flex-wrap:wrap}
+.bk-nudge .primary{flex:1 1 auto;width:auto;font-size:1rem;padding:11px 14px}
 .ghost{font:600 .85rem var(--body);border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:9px;padding:7px 12px;cursor:pointer}
 .hist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
 .hrow{display:grid;grid-template-columns:1fr auto auto;gap:12px;padding:11px 14px;border-top:1px solid var(--line);align-items:center;font-size:.9rem}
@@ -322,6 +326,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
   </div>
 
   <div id="view-today" style="display:flex;flex-direction:column;gap:16px">
+    <div class="bk-nudge" id="bkNudge" role="status" hidden>
+      <div><b>Back up your data</b><div class="note" id="bkNudgeText" style="color:var(--ink)">It's been a week. One tap, then choose Save to Files and pick iCloud Drive.</div></div>
+      <div class="row2"><button class="primary" id="bkNow">Back up now</button><button class="ghost" id="bkLater">Tomorrow</button></div>
+    </div>
     <section class="oak-card" aria-label="Your oak">
       <div class="oak-sky"><div class="oak-art" id="oakArt" role="img" aria-label="Your oak tree"></div></div>
       <div class="oak-info">
@@ -341,7 +349,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
     <div class="note">Every block you check off, workout you log and stretch you finish grows your oak. A day with 3 or more growth adds a ring. Miss a few days and the leaves droop, but it never resets.</div>
     <section style="display:flex;flex-direction:column;gap:8px">
     <h2>Backup</h2>
-    <div class="note">Your logs live only on this phone. Save a backup now and then, and restore it if you switch phones or clear your browser.</div>
+    <div class="note">Your data lives only in this app on this phone. Oak reminds you to back up once a week. Save the file to iCloud Drive, and Restore backup brings everything back if you lose the app or switch phones.</div>
+    <div class="note num" id="bkLast"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="ghost" id="exportBtn">Save backup</button>
       <label class="ghost" for="importFile" style="display:inline-block">Restore backup</label>
@@ -1284,7 +1293,31 @@ function renderToday(){
   if(prev!==null&&o.stage>+prev){toast(`Your oak grew into a ${OAK[o.stage].n}!`);oakGrewAt=Date.now()}
   try{localStorage.setItem("ppl.oakStage",String(o.stage))}catch(e){}
 }
-function renderAll(){renderToday();renderStretchRem();renderNudge();renderReminders();renderHeader();renderPet();renderTabs();renderSession();renderHistory();renderCal();if(!$("view-goals").hidden)renderGoals()}
+// ---- Backup: one tap opens the share sheet (Save to Files / iCloud Drive); weekly reminder on Today ----
+const BK_KEY="ppl.lastBackup", BK_SNOOZE="ppl.backupSnooze";
+const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+function hasAnyData(){return Object.keys(sessions).length>0||stretchDays.length>0||Object.keys(dyDays).length>0||Object.values(goalState).some(Boolean)}
+function renderBackup(){
+  const last=+lsGet(BK_KEY)||0, snooze=+lsGet(BK_SNOOZE)||0, now=Date.now(), days=last?Math.floor((now-last)/864e5):null;
+  $("bkLast").textContent=last?`Last backup: ${days===0?"today":days===1?"yesterday":days+" days ago"} (${new Date(last).toLocaleDateString(undefined,{month:"short",day:"numeric"})})`:"No backup yet.";
+  const due=hasAnyData()&&(!last||now-last>=7*864e5)&&now>=snooze;
+  $("bkNudge").hidden=!due;
+  if(due) $("bkNudgeText").textContent=last?`It's been ${days} days. One tap, then choose Save to Files and pick iCloud Drive.`:"You haven't backed up yet. One tap, then choose Save to Files and pick iCloud Drive.";
+}
+async function doBackup(){
+  const data={app:"oak",version:2,exported:new Date().toISOString(),sessions,pet,goals:goalState,stretchDays,daily:{tpls:dyTpls,days:dyDays,dayTpl:dyDayTpl},reminders:rem};
+  const name=`oak-backup-${iso(new Date())}.json`, text=JSON.stringify(data,null,1);
+  const done=()=>{lsSet(BK_KEY,String(Date.now()));renderBackup();toast("Backup saved")};
+  try{
+    const file=new File([text],name,{type:"application/json"});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"Oak backup"});done();return}
+  }catch(e){if(e&&e.name==="AbortError"){toast("Backup canceled");return}}
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"application/json"}));a.download=name;
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
+  done();
+}
+function renderAll(){renderToday();renderBackup();renderStretchRem();renderNudge();renderReminders();renderHeader();renderPet();renderTabs();renderSession();renderHistory();renderCal();if(!$("view-goals").hidden)renderGoals()}
 
 let tt;function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2200)}
 function setNote(m){$("syncNote").textContent=m}
@@ -1458,13 +1491,9 @@ if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.se
 if(navigator.storage&&navigator.storage.persist){navigator.storage.persist().catch(()=>{})}
 
 // ---- Backup: logs live on this phone, so let people save and restore a copy ----
-$("exportBtn").addEventListener("click",()=>{
-  const data={app:"push-pull-legs",version:1,exported:new Date().toISOString(),sessions,pet,goals:goalState,stretchDays,daily:{tpls:dyTpls,days:dyDays,dayTpl:dyDayTpl}};
-  const blob=new Blob([JSON.stringify(data,null,1)],{type:"application/json"});
-  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`ppl-backup-${TODAY}.json`;
-  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
-  toast("Backup saved");
-});
+$("exportBtn").addEventListener("click",doBackup);
+$("bkNow").addEventListener("click",doBackup);
+$("bkLater").addEventListener("click",()=>{lsSet(BK_SNOOZE,String(Date.now()+864e5));renderBackup()});
 $("importFile").addEventListener("change",async e=>{
   const f=e.target.files[0]; if(!f) return;
   try{
@@ -1474,6 +1503,7 @@ $("importFile").addEventListener("change",async e=>{
     if(d.daily&&typeof d.daily==="object"){if(Array.isArray(d.daily.tpls)&&d.daily.tpls.length)dyTpls=d.daily.tpls;else if(Array.isArray(d.daily.tpl))dyTpls=dyFromOld(d.daily.tpl);dyTplSel=dyTpls[0].id;if(d.daily.dayTpl&&typeof d.daily.dayTpl==="object")dyDayTpl=Object.assign({},dyDayTpl,d.daily.dayTpl);if(d.daily.days&&typeof d.daily.days==="object")dyDays=Object.assign({},dyDays,d.daily.days);saveDaily()}
     if(Array.isArray(d.stretchDays)){stretchDays=[...new Set([...stretchDays,...d.stretchDays])].sort();saveStretch()}
     if(d.goals&&typeof d.goals==="object"){goalState=Object.assign({},goalState,d.goals);saveGoals()}
+    if(d.reminders&&typeof d.reminders==="object"&&Array.isArray(d.reminders.days)){rem=Object.assign(rem,d.reminders);saveRem()}
     if(d.pet&&d.pet.name){pet=d.pet;try{localStorage.setItem(PET_KEY,JSON.stringify(pet))}catch(_){}}
     current=nextDay(); renderAll(); toast(`Restored ${Object.keys(d.sessions).length} sessions`);
   }catch(_){toast("That file isn't a Push Pull Legs backup")}
