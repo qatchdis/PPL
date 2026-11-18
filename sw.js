@@ -1,6 +1,6 @@
 // Offline support. The page itself is always fetched fresh (bypassing the phone's HTTP cache) so updates show up
 // on the next open; the saved copy is only used when there's no connection. Icons and fonts are cached.
-const CACHE = "oak-v21";
+const CACHE = "oak-v22";
 const APP = ["./", "index.html", "manifest.json", "icon-192.png", "icon-512.png", "apple-touch-icon.png"];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE)
