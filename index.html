@@ -237,6 +237,16 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .act-sum div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;min-width:0}
 .act-sum b{display:block;font:800 1.35rem var(--display);line-height:1.1}
 .act-sum span{font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.hdr-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 12px}
+.hdr-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tab-order{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.to-row{display:grid;grid-template-columns:28px 1fr auto auto;gap:8px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.to-row.first{border-color:var(--accent);background:var(--accent-soft)}
+.to-n{font:800 1.1rem var(--display);color:var(--muted);text-align:center}
+.to-row b{font:700 1.1rem var(--display);text-transform:uppercase;letter-spacing:.02em;min-width:0}
+.to-row small{display:block;font:600 .7rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.to-row button{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:1.1rem;cursor:pointer}
+.to-row button:disabled{opacity:.3;cursor:default}
 .ghost{font:600 .85rem var(--body);border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:9px;padding:7px 12px;cursor:pointer}
 .hist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
 .hrow{display:grid;grid-template-columns:1fr auto auto;gap:12px;padding:11px 14px;border-top:1px solid var(--line);align-items:center;font-size:.9rem}
@@ -328,7 +338,17 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
       <div class="eyebrow" id="dateLabel">Today</div>
       <h1>Oak</h1>
     </div>
+    <button class="ghost hdr-btn" id="tabEdit" type="button" aria-label="Arrange tabs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16M7 4l-3 3M7 4l3 3M17 20V4M17 20l-3-3M17 20l3-3"/></svg>Tabs</button>
   </header>
+
+  <div class="sheet-bg" id="tabSheetBg" hidden>
+    <div class="sheet" role="dialog" aria-labelledby="tabSheetTitle">
+      <h2 id="tabSheetTitle">Arrange tabs</h2>
+      <div class="note">Move tabs up or down. Oak opens on whichever tab is first.</div>
+      <ol class="tab-order" id="tabOrderList"></ol>
+      <div class="dy-tools"><button class="primary" id="tabDone" type="button" style="flex:0 1 auto">Done</button><button class="ghost" id="tabReset" type="button">Reset to default</button></div>
+    </div>
+  </div>
 
   <div class="views" role="tablist" id="views">
     <span class="view-ind" aria-hidden="true"></span>
@@ -1414,6 +1434,31 @@ let tt;function toast(m){const t=$("toast");t.textContent=m;t.classList.add("sho
 function setNote(m){$("syncNote").textContent=m}
 
 // events
+// ---- Tab order: saved per phone; the first tab is where the app opens ----
+const TAB_KEY="ppl.tabOrder", TAB_DEFAULT=["today","daily","fitness","goals","cal"], TAB_NAMES={today:"Today",daily:"Plan",fitness:"Fitness",goals:"Goals",cal:"Calendar"};
+let tabOrder=(()=>{try{const v=JSON.parse(localStorage.getItem(TAB_KEY)||"null");if(Array.isArray(v)&&v.length===TAB_DEFAULT.length&&TAB_DEFAULT.every(k=>v.includes(k)))return v}catch(e){}return [...TAB_DEFAULT]})();
+function applyTabOrder(){const bar=$("views");tabOrder.forEach(k=>{const b=document.querySelector(`.view-btn[data-view="${k}"]`);if(b)bar.append(b)});moveInd(false)}
+function saveTabOrder(){try{localStorage.setItem(TAB_KEY,JSON.stringify(tabOrder))}catch(e){}}
+function renderTabSheet(){
+  const ol=$("tabOrderList"); ol.replaceChildren();
+  tabOrder.forEach((k,i)=>{
+    const li=document.createElement("li"); li.className="to-row"+(i===0?" first":"");
+    const n=document.createElement("span"); n.className="to-n num"; n.textContent=i+1;
+    const nm=document.createElement("b"); nm.textContent=TAB_NAMES[k];
+    if(i===0){const sm=document.createElement("small");sm.textContent="Opens first";nm.append(sm)}
+    const up=document.createElement("button"); up.type="button"; up.textContent="↑"; up.disabled=i===0; up.setAttribute("aria-label","Move "+TAB_NAMES[k]+" up");
+    const dn=document.createElement("button"); dn.type="button"; dn.textContent="↓"; dn.disabled=i===tabOrder.length-1; dn.setAttribute("aria-label","Move "+TAB_NAMES[k]+" down");
+    up.addEventListener("click",()=>moveTab(i,-1)); dn.addEventListener("click",()=>moveTab(i,1));
+    li.append(n,nm,up,dn); ol.append(li);
+  });
+}
+function moveTab(i,d){const j=i+d;if(j<0||j>=tabOrder.length)return;[tabOrder[i],tabOrder[j]]=[tabOrder[j],tabOrder[i]];saveTabOrder();applyTabOrder();renderTabSheet();
+  const btns=[...$("tabOrderList").querySelectorAll("button")];const f=btns[j*2+(d<0?0:1)];if(f&&!f.disabled)f.focus()}
+$("tabEdit").addEventListener("click",()=>{renderTabSheet();$("tabSheetBg").hidden=false});
+$("tabDone").addEventListener("click",()=>{$("tabSheetBg").hidden=true});
+$("tabReset").addEventListener("click",()=>{tabOrder=[...TAB_DEFAULT];saveTabOrder();applyTabOrder();renderTabSheet();toast("Tabs reset")});
+$("tabSheetBg").addEventListener("click",e=>{if(e.target===$("tabSheetBg"))$("tabSheetBg").hidden=true});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("tabSheetBg").hidden)$("tabSheetBg").hidden=true});
 $("dySegDay").addEventListener("click",()=>{dyTab="day";dyHideAsk();renderDaily()});
 $("dySegTpl").addEventListener("click",()=>{dyTab="tpl";dyHideAsk();renderDaily()});
 $("dyPrev").addEventListener("click",()=>dyGo(addDays(dyView,-1)));
@@ -1651,6 +1696,8 @@ $("finish").addEventListener("click",()=>{
 sessions=loadLocal();
 current=nextDay();
 renderAll();
+applyTabOrder();
+if(tabOrder[0]!=="today") showView(tabOrder[0]);
 
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
 if(navigator.storage&&navigator.storage.persist){navigator.storage.persist().catch(()=>{})}
