@@ -225,6 +225,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .bk-nudge .primary{flex:1 1 auto;width:auto;font-size:1rem;padding:11px 14px}
 .day.done.hike{background:var(--c-study);color:var(--surface)}
 .day.done.run{background:var(--c-rest);color:var(--surface)}
+.day.done.walk{background:var(--c-project);color:var(--surface)}
+.trail-info{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:.82rem;color:var(--muted)}
+.trail-info a{color:var(--accent);font-weight:600;text-decoration:none}
+.dtag{font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:99px;background:var(--accent-soft);color:var(--accent)}
 .eff{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .act-x{border:1px solid var(--line);background:var(--bg);color:var(--muted);border-radius:8px;min-width:34px;height:32px;padding:0 8px;cursor:pointer;font:600 .8rem var(--body)}
 .act-x.sure{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
@@ -441,7 +445,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 
   <div id="view-fitness" hidden style="display:flex;flex-direction:column;gap:16px">
     <div class="dy-using" id="fitPick"><label for="fitSel">Today I did</label>
-      <select id="fitSel"><option value="workout">Gym workout</option><option value="hike">Hike</option><option value="run">Run</option><option value="stretch">Stretch</option></select>
+      <select id="fitSel"><option value="workout">Gym workout</option><option value="hike">Hike</option><option value="walk">Walk</option><option value="run">Run</option><option value="stretch">Stretch</option></select>
     </div>
   <div id="view-workout" style="display:flex;flex-direction:column;gap:20px">
   <div class="fit-top"><h2>Workouts</h2>
@@ -536,6 +540,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
   <div id="view-activity" hidden style="display:flex;flex-direction:column;gap:14px">
     <form class="rem" id="actForm" novalidate>
       <div class="fit-top"><h2 id="actH">Log a hike</h2><span class="pill ok" id="actToday" hidden>Logged today</span></div>
+      <div class="fld"><label for="actPick">Pick a trail</label><select id="actPick"></select></div>
+      <div class="trail-info" id="actTrailInfo" hidden></div>
       <div class="two">
         <div class="fld"><label for="actDate">Date</label><input id="actDate" type="date"></div>
         <div class="fld"><label for="actName" id="actNameLbl">Trail</label><input id="actName" maxlength="60" autocomplete="off" placeholder="Where?"></div>
@@ -556,7 +562,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
     <div class="act-sum" id="actSum"></div>
     <h2 id="actHistH">Recent hikes</h2>
     <div class="hist" id="actHist"></div>
-    <a class="watch" id="actFind" href="https://www.alltrails.com/us/arizona/goodyear" target="_blank" rel="noopener">Find trails near Goodyear ↗</a>
+    <a class="watch" id="actFind" href="https://www.alltrails.com/us/arizona/goodyear" target="_blank" rel="noopener">More trails near Goodyear on AllTrails ↗</a>
+    <div class="note">Trail distances and elevation come from AllTrails.</div>
   </div>
   </div>
 
@@ -587,6 +594,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
       <span><i style="background:var(--good)"></i>Legs</span>
       <span><i style="background:var(--c-study)"></i>Hike</span>
       <span><i style="background:var(--c-rest)"></i>Run</span>
+      <span><i style="background:var(--c-project)"></i>Walk</span>
       <span><i style="background:var(--good-soft)"></i>Week hit 3/3</span>
       <span><i style="background:var(--muted);border-radius:50%;width:7px;height:7px"></i>Stretched</span>
     </div>
@@ -654,7 +662,43 @@ const ACT_KEY="ppl.acts.v1";
 let acts=[];
 try{const v=JSON.parse(localStorage.getItem(ACT_KEY)||"[]");if(Array.isArray(v))acts=v}catch(e){}
 function saveActs(){try{localStorage.setItem(ACT_KEY,JSON.stringify(acts))}catch(e){toast("Couldn't save. Your phone's storage may be full.")}}
-const ACT_NAME={hike:"Hike",run:"Run"};
+const ACT_NAME={hike:"Hike",walk:"Walk",run:"Run"};
+// Trails near Goodyear, from AllTrails: [name, area, miles, gain ft, difficulty, route, est minutes, slug]
+const TRAILS=[
+ ["Friendship Park Loop","Goodyear & Avondale",1.7,16,"Easy","Loop",30,"trail/us/arizona/friendship-park-loop"],
+ ["Bullard Wash Linear Park Trail","Goodyear & Avondale",1.8,32,"Easy","Loop",33,"trail/us/arizona/bullard-wash-linear-park-trail"],
+ ["Estrella North and South Lakes Loop","Goodyear & Avondale",2.6,29,"Easy","Loop",46,"trail/us/arizona/estrella-north-and-south-lakes-loop"],
+ ["Lucero Hills Loop","Goodyear & Avondale",3.1,232,"Easy","Loop",67,"trail/us/arizona/lucero-hills-loop"],
+ ["Tierra Verde Lake Park Loop","Goodyear & Avondale",0.7,3,"Easy","Loop",12,"trail/us/arizona/tierra-verde-lake-park-loop"],
+ ["Tolleson Wetlands Loop","Goodyear & Avondale",5.3,32,"Easy","Loop",92,"trail/us/arizona/tolleson-wetlands-loop--2"],
+ ["Grand Canal Trail","Goodyear & Avondale",9.4,157,"Easy","Out & back",169,"trail/us/arizona/grand-canal-trail--2"],
+ ["Gila Trail","Estrella Mountain",0.5,36,"Easy","Loop",11,"trail/us/arizona/gila-trail--2"],
+ ["Gila River Trail","Estrella Mountain",1.9,32,"Easy","Loop",34,"trail/us/arizona/gila-river-trail"],
+ ["Horseshoe Trail","Estrella Mountain",2.0,147,"Easy","Loop",43,"trail/us/arizona/horseshoe-trail"],
+ ["Baseline Trail: Northeast Trailhead","Estrella Mountain",2.4,252,"Moderate","Loop",57,"trail/us/arizona/baseline-trail-northeast-trailhead"],
+ ["Quail and Baseline Trail Loop","Estrella Mountain",2.5,298,"Moderate","Loop",61,"trail/us/arizona/quail-and-baseline-trail-loop"],
+ ["Baseline Trail","Estrella Mountain",2.6,380,"Moderate","Loop",68,"trail/us/arizona/baseline-trail"],
+ ["Rainbow Valley, Dysart and Toothaker Loop","Estrella Mountain",4.8,341,"Moderate","Loop",103,"trail/us/arizona/rainbow-valley-to-dysart-trail-to-toothaker-trail-loop"],
+ ["Victory Steps via Canyon Vista Trailhead","Verrado (Buckeye)",0.4,160,"Moderate","Loop",16,"trail/us/arizona/victory-steps-via-canyon-vista-trailhead"],
+ ["Victory Stairs from Verrado Way","Verrado (Buckeye)",1.1,344,"Moderate","Loop",0,"trail/us/arizona/victory-stairs-from-verrado-way"],
+ ["Maricopa Trail: Verrado","Verrado (Buckeye)",3.5,88,"Easy","Out & back",65,"trail/us/arizona/maricopa-trail-verrado--2"],
+ ["Turnbuckle, Valley Vista and Mountain Wash Loop","Skyline Regional Park",2.3,433,"Moderate","Loop",67,"trail/us/arizona/turnbuckle-valley-vista-and-mountain-wash-loop"],
+ ["Granite Falls via Turnbuckle Trail","Skyline Regional Park",3.7,380,"Easy","Loop",87,"trail/us/arizona/granite-falls-trail-via-turnbuckle-trail"],
+ ["Valley Vista and Turnbuckle Loop","Skyline Regional Park",4.2,846,"Moderate","Loop",126,"trail/us/arizona/turnbuckle-loop"],
+ ["Turnbuckle and Skyline Loop","Skyline Regional Park",4.2,843,"Moderate","Loop",125,"trail/us/arizona/turnbuckle-and-skyline-loop"],
+ ["Quartz Mine, Skyline Crest and Mountain Wash Loop","Skyline Regional Park",4.4,935,"Moderate","Loop",134,"trail/us/arizona/quartz-mine-skyline-crest-and-mountain-wash-trails-loop"],
+ ["Black Rock Loop Trail","White Tank Mountains",1.3,85,"Easy","Loop",27,"trail/us/arizona/black-rock-loop"],
+ ["White Tank Waterfall Trail","White Tank Mountains",1.9,200,"Easy","Out & back",45,"trail/us/arizona/white-tank-waterfall-trail"],
+ ["Mesquite Canyon Trail","White Tank Mountains",3.2,702,"Moderate","Out & back",99,"trail/us/arizona/mesquite-canyon-trail-2"],
+ ["Waterfall and Black Rock Long Loop","White Tank Mountains",3.4,285,"Easy","Loop",76,"trail/us/arizona/waterfall-and-black-rock-long-loop"],
+ ["Mule Deer Trail","White Tank Mountains",3.6,239,"Easy","Out & back",77,"trail/us/arizona/mule-deer-trail"],
+ ["Waddell and Ford Canyon Trail","White Tank Mountains",6.2,711,"Moderate","Out & back",0,"trail/us/arizona/waddell-and-ford-canyon-trail"],
+ ["South, Bajada and Mule Deer Loop","White Tank Mountains",7.3,521,"Moderate","Loop",157,"trail/us/arizona/south-bajada-mule-deer-loop-trail"],
+ ["Mesquite Canyon, Goat Camp and Willow Canyon Loop","White Tank Mountains",8.5,1561,"Moderate","Loop",244,"trail/us/arizona/mesquite-canyon-trail"],
+ ["Maricopa Trail: Indian School to White Tank","White Tank Mountains",9.2,449,"Easy","Point to point",176,"trail/us/arizona/maricopa-trail-indian-school-to-white-tank-mountain--2"],
+ ["Ford Canyon Loop Trail","White Tank Mountains",11.0,1788,"Hard","Loop",301,"trail/us/arizona/ford-canyon-loop-trail"]
+];
+const trailUrl=t=>"https://www.alltrails.com/"+t[7];
 function moveDays(){return new Set([...doneList().map(x=>x.date),...acts.map(a=>a.date)])}
 function actOn(d){return acts.filter(a=>a.date===d)}
 function fmtMins(m){m=Math.round(+m||0);if(!m)return "";const h=Math.floor(m/60),r=m%60;return h?`${h}h${r?" "+r+"m":""}`:`${r} min`}
@@ -1482,16 +1526,46 @@ $("goalList").addEventListener("toggle",e=>{const d=e.target.closest&&e.target.c
 let fitSub=(actOn(TODAY)[0]||{}).type||"workout";
 function showFit(){
   $("fitSel").value=fitSub;
-  $("view-workout").hidden=fitSub!=="workout"; $("view-stretch").hidden=fitSub!=="stretch"; $("view-activity").hidden=fitSub!=="hike"&&fitSub!=="run";
+  $("view-workout").hidden=fitSub!=="workout"; $("view-stretch").hidden=fitSub!=="stretch"; $("view-activity").hidden=!ACT_NAME[fitSub];
   if(fitSub==="stretch") renderStretch();
-  if(fitSub==="hike"||fitSub==="run") renderActivity(true);
+  if(ACT_NAME[fitSub]) renderActivity(true);
 }
 let actEffort="moderate", actDelArm=null;
+function fillTrailPicker(){
+  const sel=$("actPick"), groups={};
+  const opt=(v,txt)=>{const o=document.createElement("option");o.value=v;o.textContent=txt;return o};
+  sel.replaceChildren(opt("","Choose a trail, or type your own below"));
+  // your recent places first, with your own distances
+  const seen=new Set(), recent=[];
+  [...acts].sort((a,b)=>(b.at||0)-(a.at||0)).forEach(a=>{if(a.name&&!seen.has(a.name.toLowerCase())&&recent.length<6){seen.add(a.name.toLowerCase());recent.push(a)}});
+  if(recent.length){const g=document.createElement("optgroup");g.label="Your recent";recent.forEach(a=>g.append(opt("r:"+a.id,`${a.name}${a.dist?" · "+a.dist+" mi":""}`)));sel.append(g)}
+  TRAILS.forEach((t,i)=>{(groups[t[1]]=groups[t[1]]||[]).push([t,i])});
+  Object.entries(groups).forEach(([area,list])=>{const g=document.createElement("optgroup");g.label=area;list.sort((a,b)=>a[0][2]-b[0][2]).forEach(([t,i])=>g.append(opt("t:"+i,`${t[0]} · ${t[2]} mi · ${t[4]}`)));sel.append(g)});
+  $("actTrailInfo").hidden=true; $("actTime").placeholder="0";
+}
+function pickTrail(v){
+  const info=$("actTrailInfo"); info.replaceChildren(); info.hidden=true; $("actTime").placeholder="0";
+  if(!v) return;
+  if(v.startsWith("r:")){
+    const a=acts.find(z=>z.id===v.slice(2)); if(!a) return;
+    $("actName").value=a.name; if(a.dist)$("actDist").value=a.dist; if(fitSub==="hike"&&a.elev)$("actElev").value=a.elev;
+  }else{
+    const t=TRAILS[+v.slice(2)]; if(!t) return;
+    $("actName").value=t[0]; $("actDist").value=t[2]; if(fitSub==="hike")$("actElev").value=t[3];
+    if(t[6]) $("actTime").placeholder="est "+t[6];
+    const tag=document.createElement("span");tag.className="dtag";tag.textContent=t[4];
+    const meta=document.createElement("span");meta.textContent=`${t[5]} · ${t[2]} mi · ${t[3]} ft gain${t[6]?" · about "+fmtMins(t[6]):""}`;
+    const a=document.createElement("a");a.href=trailUrl(t);a.target="_blank";a.rel="noopener";a.textContent="View on AllTrails ↗";
+    info.append(tag,meta,a); info.hidden=false;
+  }
+  const p=fmtPace(+$("actTime").value,+$("actDist").value); $("actPace").textContent=p?`Pace: ${p}`:"";
+}
 function renderActivity(resetForm){
   const t=fitSub, nm=ACT_NAME[t]||"Hike", hike=t==="hike";
   $("actH").textContent="Log a "+nm.toLowerCase(); $("actSave").textContent="Log "+nm.toLowerCase();
-  $("actNameLbl").textContent=hike?"Trail":"Route"; $("actName").placeholder=hike?"e.g. Estrella Mountain":"e.g. Neighborhood loop";
-  $("actElevWrap").hidden=!hike; $("actFind").hidden=!hike;
+  $("actNameLbl").textContent=t==="run"?"Route":"Trail"; $("actName").placeholder=t==="run"?"e.g. Neighborhood loop":"Or type your own";
+  $("actElevWrap").hidden=!hike; $("actFind").hidden=t==="run";
+  if(resetForm) fillTrailPicker();
   $("actToday").hidden=!acts.some(a=>a.date===TODAY&&a.type===t);
   if(resetForm){$("actDate").value=TODAY;$("actDate").max=iso(new Date());$("actErr").hidden=true}
   ["easy","moderate","hard"].forEach(e=>$("eff-"+e).setAttribute("aria-pressed",String(e===actEffort)));
@@ -1532,6 +1606,7 @@ document.querySelector(".views").addEventListener("click",e=>{
   showView(b.dataset.view);
 });
 $("fitSel").addEventListener("change",e=>{fitSub=e.target.value;actDelArm=null;showFit()});
+$("actPick").addEventListener("change",e=>pickTrail(e.target.value));
 $("actEffort").addEventListener("click",e=>{const b=e.target.closest(".dchip");if(!b)return;actEffort=b.dataset.e;renderActivity(false)});
 ["actTime","actDist"].forEach(id=>$(id).addEventListener("input",()=>{const p=fmtPace(+$("actTime").value,+$("actDist").value);$("actPace").textContent=p?`Pace: ${p}`:""}));
 $("actForm").addEventListener("submit",ev=>{
