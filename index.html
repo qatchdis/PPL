@@ -398,6 +398,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
         </div>
         <div class="note">This adds only the stretch reminder, so your gym reminders won't double up. iPhone: open the downloaded file and tap Add All.</div>
       </div>
+      <div class="note num" style="text-align:center">Oak version <b id="appVer"></b></div>
       <button class="primary" id="tabDone" type="button">Done</button>
     </div>
   </div>
@@ -708,6 +709,7 @@ function figSVG(id,label){
   return `<svg class="fig" viewBox="0 0 120 90" role="img" aria-label="${label} illustration">${f.m}${f.b.map(poly).join("")}<circle class="head" cx="${f.h[0]}" cy="${f.h[1]}" r="6.5"/><path class="arr" d="${d}"/><polygon class="tip" points="${tip}"/></svg>`;
 }
 const ORDER = ["push","pull","legs"];
+const APP_VERSION="2.8";
 // ---- To-do: one-off tasks on Today ----
 const TD_KEY="ppl.todos.v1";
 let todos=[];
@@ -1500,7 +1502,7 @@ function renderTodos(){
   const D=$("tdDone"); D.replaceChildren(); D.hidden=!tdShowDone||!done.length;
   if(tdShowDone) done.forEach(t=>D.append(tdRow(t)));
 }
-function renderAll(){renderToday();renderTodos();renderBackup();renderStretchRem();renderNudge();renderReminders();renderHeader();renderPet();renderTabs();renderSession();renderHistory();renderCal();if(!$("view-goals").hidden)renderGoals()}
+function renderAll(){if($("appVer"))$("appVer").textContent=APP_VERSION;renderToday();renderTodos();renderBackup();renderStretchRem();renderNudge();renderReminders();renderHeader();renderPet();renderTabs();renderSession();renderHistory();renderCal();if(!$("view-goals").hidden)renderGoals()}
 
 let tt;function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2200)}
 function setNote(m){$("syncNote").textContent=m}
@@ -1776,7 +1778,14 @@ current=nextDay();
 renderAll();
 applyTabOrder();
 
-if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
+if("serviceWorker" in navigator){
+  // a new version takes over -> reload once so you see it right away
+  let reloaded=false; const hadController=!!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{if(hadController&&!reloaded){reloaded=true;location.reload()}});
+  window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(reg=>{
+    document.addEventListener("visibilitychange",()=>{if(!document.hidden)reg.update().catch(()=>{})});
+  }).catch(()=>{}));
+}
 if(navigator.storage&&navigator.storage.persist){navigator.storage.persist().catch(()=>{})}
 
 // ---- Backup: logs live on this phone, so let people save and restore a copy ----
