@@ -398,6 +398,14 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
         </div>
         <div class="note">This adds only the stretch reminder, so your gym reminders won't double up. iPhone: open the downloaded file and tap Add All.</div>
       </div>
+      <h3 class="set-h">Backup</h3>
+      <div class="note">Your data lives only in this app on this phone. Oak reminds you to back up once a week. Save the file to iCloud Drive, and Restore backup brings everything back if you lose the app or switch phones.</div>
+      <div class="note num" id="bkLast"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="ghost" id="exportBtn">Save backup</button>
+        <label class="ghost" for="importFile" style="display:inline-block">Restore backup</label>
+        <input type="file" id="importFile" accept="application/json,.json" hidden>
+      </div>
       <div class="note num" style="text-align:center">Oak version <b id="appVer"></b></div>
       <button class="primary" id="tabDone" type="button">Done</button>
     </div>
@@ -447,16 +455,6 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
       <ul class="td-list" id="tdDone" hidden></ul>
     </div>
     <div class="note">Every block you check off, workout you log and stretch you finish grows your oak. A day with 3 or more growth adds a ring. Miss a few days and the leaves droop, but it never resets.</div>
-    <section style="display:flex;flex-direction:column;gap:8px">
-    <h2>Backup</h2>
-    <div class="note">Your data lives only in this app on this phone. Oak reminds you to back up once a week. Save the file to iCloud Drive, and Restore backup brings everything back if you lose the app or switch phones.</div>
-    <div class="note num" id="bkLast"></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="ghost" id="exportBtn">Save backup</button>
-      <label class="ghost" for="importFile" style="display:inline-block">Restore backup</label>
-      <input type="file" id="importFile" accept="application/json,.json" hidden>
-    </div>
-    </section>
   </div>
 
   <div id="view-daily" hidden style="display:flex;flex-direction:column;gap:14px">
@@ -709,7 +707,7 @@ function figSVG(id,label){
   return `<svg class="fig" viewBox="0 0 120 90" role="img" aria-label="${label} illustration">${f.m}${f.b.map(poly).join("")}<circle class="head" cx="${f.h[0]}" cy="${f.h[1]}" r="6.5"/><path class="arr" d="${d}"/><polygon class="tip" points="${tip}"/></svg>`;
 }
 const ORDER = ["push","pull","legs"];
-const APP_VERSION="2.8";
+const APP_VERSION="2.9";
 // ---- To-do: one-off tasks on Today ----
 const TD_KEY="ppl.todos.v1";
 let todos=[];
@@ -1534,7 +1532,7 @@ function renderTabSheet(){
 }
 function moveTab(i,d){const j=i+d;if(j<0||j>=tabOrder.length)return;[tabOrder[i],tabOrder[j]]=[tabOrder[j],tabOrder[i]];saveTabOrder();applyTabOrder();renderTabSheet();
   const btns=[...$("tabOrderList").querySelectorAll("button")];const f=btns[j*2+(d<0?0:1)];if(f&&!f.disabled)f.focus()}
-$("tabEdit").addEventListener("click",()=>{renderTabSheet();renderReminders();renderStretchRem();$("tabSheetBg").hidden=false});
+$("tabEdit").addEventListener("click",()=>{renderTabSheet();renderReminders();renderStretchRem();renderBackup();$("tabSheetBg").hidden=false});
 $("tabDone").addEventListener("click",()=>{$("tabSheetBg").hidden=true});
 $("tabReset").addEventListener("click",()=>{tabOrder=[...TAB_DEFAULT];saveTabOrder();applyTabOrder();renderTabSheet();toast("Tabs reset")});
 $("tabSheetBg").addEventListener("click",e=>{if(e.target===$("tabSheetBg"))$("tabSheetBg").hidden=true});
