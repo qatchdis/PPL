@@ -223,6 +223,16 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .bk-nudge b{font:700 1.1rem var(--display);text-transform:uppercase;letter-spacing:.02em;color:var(--accent)}
 .bk-nudge .row2{display:flex;gap:8px;flex-wrap:wrap}
 .bk-nudge .primary{flex:1 1 auto;width:auto;font-size:1rem;padding:11px 14px}
+.day.done.hike{background:var(--c-study);color:var(--surface)}
+.day.done.run{background:var(--c-rest);color:var(--surface)}
+.eff{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.act-x{border:1px solid var(--line);background:var(--bg);color:var(--muted);border-radius:8px;min-width:34px;height:32px;padding:0 8px;cursor:pointer;font:600 .8rem var(--body)}
+.act-x.sure{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.hrow .sub{display:block;font-size:.8rem;color:var(--muted)}
+.act-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.act-sum div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;min-width:0}
+.act-sum b{display:block;font:800 1.35rem var(--display);line-height:1.1}
+.act-sum span{font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .ghost{font:600 .85rem var(--body);border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:9px;padding:7px 12px;cursor:pointer}
 .hist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
 .hrow{display:grid;grid-template-columns:1fr auto auto;gap:12px;padding:11px 14px;border-top:1px solid var(--line);align-items:center;font-size:.9rem}
@@ -430,9 +440,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
   </div>
 
   <div id="view-fitness" hidden style="display:flex;flex-direction:column;gap:16px">
-    <div class="seg" role="tablist" id="fitSeg">
-      <button role="tab" id="fitW" aria-selected="true">Workout</button>
-      <button role="tab" id="fitS" aria-selected="false">Stretch</button>
+    <div class="dy-using" id="fitPick"><label for="fitSel">Today I did</label>
+      <select id="fitSel"><option value="workout">Gym workout</option><option value="hike">Hike</option><option value="run">Run</option><option value="stretch">Stretch</option></select>
     </div>
   <div id="view-workout" style="display:flex;flex-direction:column;gap:20px">
   <div class="fit-top"><h2>Workouts</h2>
@@ -524,6 +533,31 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
       <div class="note">This adds only the stretch reminder, so your gym reminders won't double up. iPhone: open the downloaded file and tap Add All.</div>
     </div>
   </div>
+  <div id="view-activity" hidden style="display:flex;flex-direction:column;gap:14px">
+    <form class="rem" id="actForm" novalidate>
+      <div class="fit-top"><h2 id="actH">Log a hike</h2><span class="pill ok" id="actToday" hidden>Logged today</span></div>
+      <div class="two">
+        <div class="fld"><label for="actDate">Date</label><input id="actDate" type="date"></div>
+        <div class="fld"><label for="actName" id="actNameLbl">Trail</label><input id="actName" maxlength="60" autocomplete="off" placeholder="Where?"></div>
+      </div>
+      <div class="two">
+        <div class="fld"><label for="actDist">Distance (mi)</label><input id="actDist" type="number" inputmode="decimal" min="0" step="0.1" placeholder="0.0"></div>
+        <div class="fld"><label for="actTime">Time (min)</label><input id="actTime" type="number" inputmode="numeric" min="0" step="1" placeholder="0"></div>
+      </div>
+      <div class="fld" id="actElevWrap"><label for="actElev">Elevation gain (ft)</label><input id="actElev" type="number" inputmode="numeric" min="0" step="10" placeholder="Optional"></div>
+      <div><div class="eyebrow" style="margin-bottom:6px">How did it feel?</div>
+        <div class="eff" id="actEffort"><button type="button" class="dchip" id="eff-easy" data-e="easy" aria-pressed="false">Easy</button><button type="button" class="dchip" id="eff-moderate" data-e="moderate" aria-pressed="true">Moderate</button><button type="button" class="dchip" id="eff-hard" data-e="hard" aria-pressed="false">Hard</button></div>
+      </div>
+      <div class="fld"><label for="actNote">Notes</label><textarea id="actNote" maxlength="300" placeholder="Optional"></textarea></div>
+      <div class="note num" id="actPace"></div>
+      <p class="ferr" id="actErr" hidden></p>
+      <button class="primary" type="submit" id="actSave">Log hike</button>
+    </form>
+    <div class="act-sum" id="actSum"></div>
+    <h2 id="actHistH">Recent hikes</h2>
+    <div class="hist" id="actHist"></div>
+    <a class="watch" id="actFind" href="https://www.alltrails.com/us/arizona/goodyear" target="_blank" rel="noopener">Find trails near Goodyear ↗</a>
+  </div>
   </div>
 
   <div id="view-goals" hidden style="display:flex;flex-direction:column;gap:12px">
@@ -551,6 +585,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
       <span><i style="background:var(--accent)"></i>Push</span>
       <span><i style="background:var(--ink)"></i>Pull</span>
       <span><i style="background:var(--good)"></i>Legs</span>
+      <span><i style="background:var(--c-study)"></i>Hike</span>
+      <span><i style="background:var(--c-rest)"></i>Run</span>
       <span><i style="background:var(--good-soft)"></i>Week hit 3/3</span>
       <span><i style="background:var(--muted);border-radius:50%;width:7px;height:7px"></i>Stretched</span>
     </div>
@@ -613,6 +649,16 @@ function figSVG(id,label){
   return `<svg class="fig" viewBox="0 0 120 90" role="img" aria-label="${label} illustration">${f.m}${f.b.map(poly).join("")}<circle class="head" cx="${f.h[0]}" cy="${f.h[1]}" r="6.5"/><path class="arr" d="${d}"/><polygon class="tip" points="${tip}"/></svg>`;
 }
 const ORDER = ["push","pull","legs"];
+// ---- Activities: hikes and runs ----
+const ACT_KEY="ppl.acts.v1";
+let acts=[];
+try{const v=JSON.parse(localStorage.getItem(ACT_KEY)||"[]");if(Array.isArray(v))acts=v}catch(e){}
+function saveActs(){try{localStorage.setItem(ACT_KEY,JSON.stringify(acts))}catch(e){toast("Couldn't save. Your phone's storage may be full.")}}
+const ACT_NAME={hike:"Hike",run:"Run"};
+function moveDays(){return new Set([...doneList().map(x=>x.date),...acts.map(a=>a.date)])}
+function actOn(d){return acts.filter(a=>a.date===d)}
+function fmtMins(m){m=Math.round(+m||0);if(!m)return "";const h=Math.floor(m/60),r=m%60;return h?`${h}h${r?" "+r+"m":""}`:`${r} min`}
+function fmtPace(min,mi){if(!(+min>0&&+mi>0))return "";const t=min/mi;let mm=Math.floor(t),ss=Math.round((t-mm)*60);if(ss===60){mm++;ss=0}return `${mm}:${String(ss).padStart(2,"0")} /mi`}
 // ---- Reminders: chosen gym days drive the schedule; alerts go through the phone's calendar ----
 const REM_KEY="ppl.reminders.v1";
 let rem={days:[1,3,5],time:"09:00",night:true,nightTime:"21:00"};
@@ -692,20 +738,19 @@ function getSession(day){
 function renderHeader(){
   $("dateLabel").textContent=new Date().toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});
   const mon=mondayOf(TODAY);
-  const wk=doneList().filter(s=>mondayOf(s.date)===mon);
-  $("weekCount").textContent=Math.min(wk.length,9)+"/3";
+  $("weekCount").textContent=Math.min(weekCount(mon),9)+"/3";
   // streak: consecutive weeks with 3+ sessions; current week counts once it hits 3
   let streak=0, w=mon;
-  const count=m=>doneList().filter(s=>mondayOf(s.date)===m).length;
+  const count=weekCount;
   if(count(w)<3) w=addDays(w,-7);
   while(count(w)>=3){streak++;w=addDays(w,-7)}
   $("streak").textContent=streak;
   const names=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
   $("week").innerHTML=names.map((n,i)=>{
     const date=addDays(mon,i);
-    const done=doneList().find(s=>s.date===date);
+    const gym=doneList().find(s=>s.date===date), act=actOn(date)[0], done=gym||act;
     const planned=SCHEDULE[(i+1)%7];
-    const t=done?PLAN[done.day].name:(planned?PLAN[planned].name:(i===6?"Rest":"Walk"));
+    const t=gym?PLAN[gym.day].name:act?ACT_NAME[act.type]:(planned?PLAN[planned].name:(i===6?"Rest":"Walk"));
     return `<div class="wd${date===TODAY?" today":""}${done?" done":""}"><span class="d">${n}</span><span class="t">${t}</span></div>`;
   }).join("");
 }
@@ -755,9 +800,9 @@ function renderHistory(){
   }).join("");
 }
 
-function weekCount(m){return doneList().filter(s=>mondayOf(s.date)===m).length}
+function weekCount(m){return [...moveDays()].filter(d=>mondayOf(d)===m).length}
 function bestStreak(){
-  const weeks=[...new Set(doneList().map(s=>mondayOf(s.date)))].filter(m=>weekCount(m)>=3).sort();
+  const weeks=[...new Set([...moveDays()].map(d=>mondayOf(d)))].filter(m=>weekCount(m)>=3).sort();
   let best=0,run=0,prev=null;
   weeks.forEach(m=>{run=(prev&&addDays(prev,7)===m)?run+1:1;best=Math.max(best,run);prev=m});
   return best;
@@ -773,19 +818,19 @@ function renderCal(){
   let w=mondayOf(first);
   while(w.slice(0,7)<=calMonth){
     for(let i=0;i<7;i++){
-      const d=addDays(w,i), done=byDate[d], inMonth=d.slice(0,7)===calMonth;
+      const d=addDays(w,i), done=byDate[d], inMonth=d.slice(0,7)===calMonth, act=!done&&actOn(d)[0];
       const plan=SCHEDULE[(i+1)%7]&&d>=TODAY&&!done;
       const day=done?done[0].day:"";
-      const cls=["day",inMonth?"":"out",d===TODAY?"today":"",plan?"plan":"",done?"done "+day:"",stretchDays.includes(d)?"st":""].join(" ");
-      const label=done?`${fmtDate(d)}: ${done.map(x=>PLAN[x.day]?PLAN[x.day].name:x.day).join(" + ")}`:fmtDate(d);
-      html+=`<div class="${cls}" title="${label}" aria-label="${label}"><span>${+d.slice(8)}</span>${done?`<span class="tag">${PLAN[day]?PLAN[day].name:""}</span>`:""}</div>`;
+      const cls=["day",inMonth?"":"out",d===TODAY?"today":"",plan&&!act?"plan":"",done?"done "+day:act?"done "+act.type:"",stretchDays.includes(d)?"st":""].join(" ");
+      const label=done?`${fmtDate(d)}: ${done.map(x=>PLAN[x.day]?PLAN[x.day].name:x.day).join(" + ")}`:act?`${fmtDate(d)}: ${ACT_NAME[act.type]}${act.dist?" "+act.dist+" mi":""}`:fmtDate(d);
+      html+=`<div class="${cls}" title="${label}" aria-label="${label}"><span>${+d.slice(8)}</span>${done?`<span class="tag">${PLAN[day]?PLAN[day].name:""}</span>`:act?`<span class="tag">${ACT_NAME[act.type]}</span>`:""}</div>`;
     }
     const c=weekCount(w), past=w<=TODAY;
     html+=`<div class="wk${c>=3?" hit":""}">${past?Math.min(c,9)+"/3":""}</div>`;
     w=addDays(w,7);
   }
   $("cal").innerHTML=html;
-  $("calNote").textContent=rem.days.length?`Outlined days are your planned ${[1,2,3,4,5,6,0].filter(d=>rem.days.includes(d)).map(d=>DAYN[d]).join(" / ")} lifts. Hit 3 workouts in a week to keep the streak going.`:"Pick your gym days under Reminders on the Fitness tab.";
+  $("calNote").textContent=rem.days.length?`Outlined days are your planned ${[1,2,3,4,5,6,0].filter(d=>rem.days.includes(d)).map(d=>DAYN[d]).join(" / ")} lifts. Gym, hikes and runs all count. Hit 3 in a week to keep the streak going.`:"Pick your gym days under Reminders on the Fitness tab.";
   $("tStreak").textContent=$("streak").textContent;
   $("tBest").textContent=bestStreak();
   $("tMonth").textContent=doneList().filter(s=>s.date.slice(0,7)===TODAY.slice(0,7)).length;
@@ -1210,7 +1255,7 @@ const OAK=[{n:"Acorn",p:0},{n:"Sprout",p:6},{n:"Seedling",p:25},{n:"Sapling",p:7
 const oakStageAt=t=>{let i=0;OAK.forEach((x,k)=>{if(t>=x.p)i=k});return i};
 let oakGrewAt=0;
 function oakState(){
-  const wset=new Set(doneList().map(x=>x.date)), sset=new Set(stretchDays);
+  const wset=moveDays(), sset=new Set(stretchDays);
   const pts=k=>{let plan=0;const d=dyDays[k];if(Array.isArray(d)){const c=d.filter(i=>!i.moved);if(c.length)plan=Math.round(c.filter(i=>i.done).length/c.length*5)}
     const w=wset.has(k)?3:0, st=sset.has(k)?2:0; return {plan,w,st,total:plan+w+st}};
   const today=pts(TODAY);
@@ -1282,7 +1327,9 @@ function renderToday(){
   const dow=new Date(TODAY+"T12:00:00").getDay(), lifted=doneList().some(x=>x.date===TODAY), stretched=stretchDays.includes(TODAY);
   const rows=[
     {go:"daily",title:"Plan",ok:counted.length>0&&!left.length,d:counted.length?`${dn} of ${counted.length} blocks done`+(left.length?` · Next: ${left[0].title}${left[0].start?" at "+fmtTime(left[0].start):""}`:""):"Nothing planned yet",pts:o.today.plan?`+${o.today.plan}/5`:"+5"},
-    {go:"fitness",sub:"workout",title:"Workout",ok:lifted,d:lifted?"Logged today":rem.days.includes(dow)?`${PLAN[nextDay()].name} day · not logged yet`:"Rest day. Lift anyway if you feel good.",pts:lifted?"+3":"+3"},
+    (()=>{const a=actOn(TODAY)[0], ok=lifted||!!a;
+      return {go:"fitness",sub:lifted?"workout":a?a.type:"workout",title:"Exercise",ok,
+        d:lifted?"Gym workout logged":a?`${ACT_NAME[a.type]} logged${a.dist?" · "+a.dist+" mi":""}${a.mins?" · "+fmtMins(a.mins):""}`:rem.days.includes(dow)?`${PLAN[nextDay()].name} day · gym, hike or run`:"Rest day. A hike or run counts too.",pts:"+3"}})(),
     {go:"fitness",sub:"stretch",title:"Stretch",ok:stretched,d:stretched?"Done today":"7-minute morning routine",pts:"+2"}
   ];
   const list=$("todayList"); list.replaceChildren();
@@ -1297,7 +1344,7 @@ function renderToday(){
 const BK_KEY="ppl.lastBackup", BK_SNOOZE="ppl.backupSnooze";
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
-function hasAnyData(){return Object.keys(sessions).length>0||stretchDays.length>0||Object.keys(dyDays).length>0||Object.values(goalState).some(Boolean)}
+function hasAnyData(){return acts.length>0||Object.keys(sessions).length>0||stretchDays.length>0||Object.keys(dyDays).length>0||Object.values(goalState).some(Boolean)}
 function renderBackup(){
   const last=+lsGet(BK_KEY)||0, snooze=+lsGet(BK_SNOOZE)||0, now=Date.now(), days=last?Math.floor((now-last)/864e5):null;
   $("bkLast").textContent=last?`Last backup: ${days===0?"today":days===1?"yesterday":days+" days ago"} (${new Date(last).toLocaleDateString(undefined,{month:"short",day:"numeric"})})`:"No backup yet.";
@@ -1306,7 +1353,7 @@ function renderBackup(){
   if(due) $("bkNudgeText").textContent=last?`It's been ${days} days. One tap, then choose Save to Files and pick iCloud Drive.`:"You haven't backed up yet. One tap, then choose Save to Files and pick iCloud Drive.";
 }
 async function doBackup(){
-  const data={app:"oak",version:2,exported:new Date().toISOString(),sessions,pet,goals:goalState,stretchDays,daily:{tpls:dyTpls,days:dyDays,dayTpl:dyDayTpl},reminders:rem};
+  const data={app:"oak",version:2,exported:new Date().toISOString(),sessions,pet,goals:goalState,stretchDays,acts,daily:{tpls:dyTpls,days:dyDays,dayTpl:dyDayTpl},reminders:rem};
   const name=`oak-backup-${iso(new Date())}.json`, text=JSON.stringify(data,null,1);
   const done=()=>{lsSet(BK_KEY,String(Date.now()));renderBackup();toast("Backup saved")};
   try{
@@ -1432,11 +1479,42 @@ $("goalList").addEventListener("change",e=>{
   if(g&&e.target.checked&&g.tasks.every((_,i)=>taskInfo(g,i).checked)) toast(`${g.title}: done. Huge.`);
 });
 $("goalList").addEventListener("toggle",e=>{const d=e.target.closest&&e.target.closest("details");if(!d)return;d.open?openGoals.add(d.dataset.goal):openGoals.delete(d.dataset.goal)},true);
-let fitSub="workout";
+let fitSub=(actOn(TODAY)[0]||{}).type||"workout";
 function showFit(){
-  $("fitW").setAttribute("aria-selected",String(fitSub==="workout")); $("fitS").setAttribute("aria-selected",String(fitSub==="stretch"));
-  $("view-workout").hidden=fitSub!=="workout"; $("view-stretch").hidden=fitSub!=="stretch";
+  $("fitSel").value=fitSub;
+  $("view-workout").hidden=fitSub!=="workout"; $("view-stretch").hidden=fitSub!=="stretch"; $("view-activity").hidden=fitSub!=="hike"&&fitSub!=="run";
   if(fitSub==="stretch") renderStretch();
+  if(fitSub==="hike"||fitSub==="run") renderActivity(true);
+}
+let actEffort="moderate", actDelArm=null;
+function renderActivity(resetForm){
+  const t=fitSub, nm=ACT_NAME[t]||"Hike", hike=t==="hike";
+  $("actH").textContent="Log a "+nm.toLowerCase(); $("actSave").textContent="Log "+nm.toLowerCase();
+  $("actNameLbl").textContent=hike?"Trail":"Route"; $("actName").placeholder=hike?"e.g. Estrella Mountain":"e.g. Neighborhood loop";
+  $("actElevWrap").hidden=!hike; $("actFind").hidden=!hike;
+  $("actToday").hidden=!acts.some(a=>a.date===TODAY&&a.type===t);
+  if(resetForm){$("actDate").value=TODAY;$("actDate").max=iso(new Date());$("actErr").hidden=true}
+  ["easy","moderate","hard"].forEach(e=>$("eff-"+e).setAttribute("aria-pressed",String(e===actEffort)));
+  const p=fmtPace(+$("actTime").value,+$("actDist").value);
+  $("actPace").textContent=p?`Pace: ${p}`:"";
+  const mine=acts.filter(a=>a.type===t).sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:(b.at||0)-(a.at||0));
+  const mo=TODAY.slice(0,7), month=mine.filter(a=>a.date.slice(0,7)===mo);
+  const miles=month.reduce((x,a)=>x+(+a.dist||0),0), mins=month.reduce((x,a)=>x+(+a.mins||0),0);
+  $("actSum").innerHTML=`<div><b class="num">${month.length}</b><span>${nm}s in ${new Date(TODAY+"T12:00:00").toLocaleDateString(undefined,{month:"short"})}</span></div><div><b class="num">${miles?miles.toFixed(1):"0"}</b><span>Miles</span></div><div><b class="num">${mins?fmtMins(mins):"0"}</b><span>Time</span></div>`;
+  $("actHistH").textContent="Recent "+nm.toLowerCase()+"s";
+  const h=$("actHist"); h.replaceChildren();
+  if(!mine.length){const e=document.createElement("div");e.className="empty";e.textContent=`Your ${nm.toLowerCase()}s show up here. Log your first one above.`;h.append(e);return}
+  mine.slice(0,12).forEach(a=>{
+    const r=document.createElement("div");r.className="hrow";
+    const left=document.createElement("div");left.style.minWidth="0";const b=document.createElement("b");b.textContent=a.name||nm;
+    const sub=document.createElement("span");sub.className="sub";sub.textContent=[fmtDate(a.date),a.effort?a.effort[0].toUpperCase()+a.effort.slice(1):"",a.note||""].filter(Boolean).join(" · ");
+    left.append(b,sub);
+    const mid=document.createElement("span");mid.className="num";mid.style.textAlign="right";
+    mid.textContent=[a.dist?a.dist+" mi":"",a.mins?fmtMins(a.mins):""].filter(Boolean).join(" · ")+(hike&&a.elev?` · ${a.elev} ft`:"")+(!hike&&fmtPace(a.mins,a.dist)?` · ${fmtPace(a.mins,a.dist)}`:"");
+    const x=document.createElement("button");x.type="button";x.className="act-x"+(actDelArm===a.id?" sure":"");x.textContent=actDelArm===a.id?"Delete":"×";x.setAttribute("aria-label","Delete this "+nm.toLowerCase());
+    x.addEventListener("click",()=>{if(actDelArm===a.id){acts=acts.filter(z=>z.id!==a.id);saveActs();actDelArm=null;renderActivity(false);refreshCounts();toast(nm+" deleted")}else{actDelArm=a.id;renderActivity(false);setTimeout(()=>{if(actDelArm===a.id){actDelArm=null;renderActivity(false)}},3000)}});
+    r.append(left,mid,x);h.append(r);
+  });
 }
 function showView(v,sub){
   document.querySelectorAll(".view-btn").forEach(x=>x.setAttribute("aria-selected",String(x.dataset.view===v)));
@@ -1453,8 +1531,20 @@ document.querySelector(".views").addEventListener("click",e=>{
   const b=e.target.closest(".view-btn"); if(!b) return;
   showView(b.dataset.view);
 });
-$("fitW").addEventListener("click",()=>{fitSub="workout";showFit()});
-$("fitS").addEventListener("click",()=>{fitSub="stretch";showFit()});
+$("fitSel").addEventListener("change",e=>{fitSub=e.target.value;actDelArm=null;showFit()});
+$("actEffort").addEventListener("click",e=>{const b=e.target.closest(".dchip");if(!b)return;actEffort=b.dataset.e;renderActivity(false)});
+["actTime","actDist"].forEach(id=>$(id).addEventListener("input",()=>{const p=fmtPace(+$("actTime").value,+$("actDist").value);$("actPace").textContent=p?`Pace: ${p}`:""}));
+$("actForm").addEventListener("submit",ev=>{
+  ev.preventDefault();
+  const t=fitSub, dist=+$("actDist").value||0, mins=+$("actTime").value||0, date=$("actDate").value||TODAY, err=$("actErr");
+  if(!dist&&!mins){err.textContent="Add a distance or a time.";err.hidden=false;return}
+  if(date>iso(new Date())){err.textContent="That date hasn't happened yet.";err.hidden=false;return}
+  acts.push({id:"a"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),type:t,date,name:$("actName").value.trim().slice(0,60),dist:dist?Math.round(dist*100)/100:0,mins:Math.round(mins),elev:t==="hike"?Math.round(+$("actElev").value||0):0,effort:actEffort,note:$("actNote").value.trim().slice(0,300),at:Date.now()});
+  saveActs();
+  ["actName","actDist","actTime","actElev","actNote"].forEach(id=>{$(id).value=""});
+  err.hidden=true; renderActivity(true); refreshCounts();
+  if(Date.now()-oakGrewAt>800) toast(`${ACT_NAME[t]} logged.${date===TODAY?" +3 growth for your oak.":""}`);
+});
 $("todayList").addEventListener("click",e=>{const r=e.target.closest(".trow");if(!r)return;showView(r.dataset.go,r.dataset.sub)});
 $("calPrev").addEventListener("click",()=>shiftMonth(-1));
 $("calNext").addEventListener("click",()=>shiftMonth(1));
@@ -1501,6 +1591,7 @@ $("importFile").addEventListener("change",async e=>{
     if(!d||typeof d.sessions!=="object") throw 0;
     sessions=Object.assign({},sessions,d.sessions); saveLocal();
     if(d.daily&&typeof d.daily==="object"){if(Array.isArray(d.daily.tpls)&&d.daily.tpls.length)dyTpls=d.daily.tpls;else if(Array.isArray(d.daily.tpl))dyTpls=dyFromOld(d.daily.tpl);dyTplSel=dyTpls[0].id;if(d.daily.dayTpl&&typeof d.daily.dayTpl==="object")dyDayTpl=Object.assign({},dyDayTpl,d.daily.dayTpl);if(d.daily.days&&typeof d.daily.days==="object")dyDays=Object.assign({},dyDays,d.daily.days);saveDaily()}
+    if(Array.isArray(d.acts)){const ids=new Set(acts.map(a=>a.id));acts=acts.concat(d.acts.filter(a=>a&&a.id&&!ids.has(a.id)));saveActs()}
     if(Array.isArray(d.stretchDays)){stretchDays=[...new Set([...stretchDays,...d.stretchDays])].sort();saveStretch()}
     if(d.goals&&typeof d.goals==="object"){goalState=Object.assign({},goalState,d.goals);saveGoals()}
     if(d.reminders&&typeof d.reminders==="object"&&Array.isArray(d.reminders.days)){rem=Object.assign(rem,d.reminders);saveRem()}
