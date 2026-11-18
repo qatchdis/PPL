@@ -214,6 +214,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .tz-l0{fill:var(--leaf0)}.tz-l1{fill:var(--leaf1)}.tz-l2{fill:var(--leaf2)}.tz-d0{fill:var(--leafd0)}.tz-d1{fill:var(--leafd1)}.tz-d2{fill:var(--leafd2)}
 .tz-shadow{fill:var(--leaf2);opacity:.45}.ac-s0{stop-color:var(--acorn-hi)}.ac-s1{stop-color:var(--acorn)}.ac-s2{stop-color:var(--acorn-dk)}.cp-s0{stop-color:var(--cap-hi)}.cp-s1{stop-color:var(--cap)}.cp-s2{stop-color:var(--cap-dk)}.ac-line{stroke:var(--acorn-dk);fill:none;stroke-linecap:round}.ac-scale{stroke:var(--cap-dk);fill:none;stroke-linecap:round}.ac-stem{stroke:var(--cap-dk);fill:none;stroke-linecap:round}.ac-shine{fill:#FFFFFF}.ac-pebble{fill:var(--pebble)}.ac-rib{stroke:var(--leafd2);fill:none;stroke-linecap:round}.ac-shadow{fill:var(--soil-dk)}.tz-acorn{fill:var(--acorn)}.tz-cap{fill:var(--cap)}
 .tz-stem{stroke:var(--leaf2);stroke-width:4;fill:none;stroke-linecap:round}
+.tz-vein{stroke:#FFFFFF;stroke-opacity:.38;fill:none;stroke-linecap:round}.tz-shoot{stroke:var(--leaf2);fill:none;stroke-linecap:round}.tz-grass{stroke:var(--leaf0);stroke-width:1.1;fill:none;stroke-linecap:round;opacity:.85}.tz-furrow{stroke:var(--bark-dk);fill:none;stroke-linecap:round;opacity:.75}.tz-knot{fill:none;stroke:var(--bark-dk);stroke-width:1}.tz-hollow{fill:#2A1C12}.tz-moss{fill:var(--leaf2);opacity:.8}.tz-lit{stroke:#FFFFFF;stroke-opacity:.28;stroke-width:1;fill:none;stroke-linecap:round}.tz-tex{stroke:#000000;stroke-opacity:.18;stroke-width:1;fill:none;stroke-linecap:round}.tz-mush{fill:#EFE6D6}.tz-mcap{fill:#B5532F}
 .tz-br{stroke:var(--bark);fill:none;stroke-linecap:round}
 .tz-root{stroke:var(--bark-dk);fill:none;stroke-linecap:round;stroke-width:4}
 @keyframes sway{0%,100%{transform:rotate(-.7deg)}50%{transform:rotate(.7deg)}}
@@ -707,7 +708,7 @@ function figSVG(id,label){
   return `<svg class="fig" viewBox="0 0 120 90" role="img" aria-label="${label} illustration">${f.m}${f.b.map(poly).join("")}<circle class="head" cx="${f.h[0]}" cy="${f.h[1]}" r="6.5"/><path class="arr" d="${d}"/><polygon class="tip" points="${tip}"/></svg>`;
 }
 const ORDER = ["push","pull","legs"];
-const APP_VERSION="2.10";
+const APP_VERSION="2.11";
 // ---- To-do: one-off tasks on Today ----
 const TD_KEY="ppl.todos.v1";
 let todos=[];
@@ -1014,7 +1015,7 @@ const AUTO={
   week3:()=>[...new Set(doneList().map(s=>mondayOf(s.date)))].some(m=>weekCount(m)>=3),
   streak4:()=>bestStreak()>=4,
   owlet:()=>streakDays()>=7,
-  sapling:()=>oakState().stage>=3
+  sapling:()=>oakState().stage>=4
 };
 const GOALS=[
   {id:"job",phase:1,title:"Get a job",tasks:["Update resume with the account manager role","Pick 2–3 target roles (account manager, sales, ad agency)","Set up job alerts on Indeed and LinkedIn","Apply to 2 jobs today","Hit 10 applications in week one","Message 3 past coworkers that you're looking","Prep \"tell me about yourself\" and \"why did you leave\"","Land a first interview","Accept an offer"]},
@@ -1352,7 +1353,7 @@ function dyAsk(text,yes,fn){dyConfirmFn=fn;$("dyConfirmText").textContent=text;$
 function dyHideAsk(){dyConfirmFn=null;$("dyConfirm").hidden=true}
 function dyGo(k){dyView=k;dyHideAsk();renderDaily()}
 // ---- Oak: grows from the whole day (Plan blocks, workouts, stretches). Never resets. ----
-const OAK=[{n:"Acorn",p:0},{n:"Sprout",p:6},{n:"Seedling",p:25},{n:"Sapling",p:70},{n:"Young oak",p:160},{n:"Oak",p:300},{n:"Mighty oak",p:520}];
+const OAK=[{n:"Acorn",p:0},{n:"Sprouting acorn",p:3},{n:"Sprout",p:8},{n:"Seedling",p:18},{n:"Sapling",p:35},{n:"Young tree",p:60},{n:"Young oak",p:95},{n:"Sturdy oak",p:140},{n:"Oak",p:200},{n:"Grand oak",p:280},{n:"Mighty oak",p:380},{n:"Ancient oak",p:520}];
 const oakStageAt=t=>{let i=0;OAK.forEach((x,k)=>{if(t>=x.p)i=k});return i};
 let oakGrewAt=0;
 function oakState(){
@@ -1372,66 +1373,143 @@ function oakState(){
   const stage=oakStageAt(total), nx=OAK[stage+1];
   return {total,stage,today,streak,rings,health,prog:nx?(total-OAK[stage].p)/(nx.p-OAK[stage].p):1};
 }
-const OAK_CAN={
-  3:{w:7,h:62,br:[],c:[[100,100,18,1],[86,108,13,0],[114,108,13,2],[100,86,13,2]]},
-  4:{w:11,h:78,br:[[100,128,80,110],[100,120,122,106]],c:[[100,86,26,1],[74,100,19,0],[126,98,20,2],[86,72,18,2],[116,70,18,0],[100,62,15,1],[60,110,12,1],[140,108,12,0]]},
-  5:{w:17,h:80,br:[[100,124,70,104],[100,116,132,98],[100,108,92,86]],c:[[100,84,32,1],[66,98,24,0],[134,96,25,2],[80,64,24,2],[122,60,24,0],[100,48,20,1],[48,112,16,1],[152,110,16,0],[60,76,16,2],[142,74,17,1]]},
-  6:{w:24,h:82,br:[[100,124,58,100],[100,114,144,94],[100,106,84,78],[100,104,118,76]],c:[[100,80,36,1],[62,96,27,0],[138,94,28,2],[76,58,27,2],[124,54,27,0],[100,38,22,1],[38,112,18,1],[162,110,18,0],[52,72,18,2],[148,70,19,1],[30,96,14,2],[170,94,14,1]]}
+// ---- Oak drawing: 12 stages, from acorn to ancient oak ----
+const OAK_LEAF="M0 0 C2 -3 5 -2 6 -5 C8 -8 10 -4 12 -6 C14 -9 17 -5 18 -6 C21 -6 22 -3 24 0 C22 3 21 6 18 6 C17 5 14 9 12 6 C10 4 8 8 6 5 C5 2 2 3 0 0 Z";
+const OAK_VEIN="M0 0 L23 0 M6 0 L8 -4 M12 0 L14 -5 M18 0 L19 -4 M6 0 L8 4 M12 0 L14 5 M18 0 L19 4";
+const f1=n=>(+n).toFixed(1);
+function oakRng(s){return()=>{s=(s*16807)%2147483647;return (s-1)/2147483646}}
+function oakLeaf(x,y,rot,sc,cls){return `<g transform="translate(${f1(x)} ${f1(y)}) rotate(${f1(rot)}) scale(${sc})"><path class="${cls}" d="${OAK_LEAF}"/><path class="tz-vein" stroke-width="${f1(0.9/sc*0.6)}" d="${OAK_VEIN}"/><path class="tz-vein" stroke-width="${f1(1.6/sc*0.6)}" d="M0 0 L-3 1"/></g>`}
+// tapered limb from (x1,y1) to (x2,y2), width w1 -> w2, bent sideways by "bend"
+function oakLimb(x1,y1,x2,y2,w1,w2,bend,cls="tz-bark"){
+  const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy)||1,nx=-dy/L,ny=dx/L,mx=(x1+x2)/2+nx*bend,my=(y1+y2)/2+ny*bend,wm=(w1+w2)/4;
+  return `<path class="${cls}" d="M${f1(x1+nx*w1/2)} ${f1(y1+ny*w1/2)} Q${f1(mx+nx*wm)} ${f1(my+ny*wm)} ${f1(x2+nx*w2/2)} ${f1(y2+ny*w2/2)} L${f1(x2-nx*w2/2)} ${f1(y2-ny*w2/2)} Q${f1(mx-nx*wm)} ${f1(my-ny*wm)} ${f1(x1-nx*w1/2)} ${f1(y1-ny*w1/2)} Z"/>`;
+}
+// a bumpy, leafy clump outline
+function oakBlob(cx,cy,rx,ry,n,rnd){
+  const pts=[];for(let i=0;i<n;i++)pts.push([(i+rnd()*0.35)/n*Math.PI*2,0.86+rnd()*0.14]);
+  let d="";
+  pts.forEach(([a,j],i)=>{
+    if(!i)d+=`M${f1(cx+Math.cos(a)*rx*j)} ${f1(cy+Math.sin(a)*ry*j)}`;
+    const [a2r,j2]=pts[(i+1)%n],a2=i===n-1?a2r+Math.PI*2:a2r,am=(a+a2)/2,b=1.16+rnd()*0.12;
+    d+=` Q${f1(cx+Math.cos(am)*rx*b)} ${f1(cy+Math.sin(am)*ry*b)} ${f1(cx+Math.cos(a2)*rx*j2)} ${f1(cy+Math.sin(a2)*ry*j2)}`;
+  });
+  return d+"Z";
+}
+function oakAcornSmall(x,y,s=1){return `<g transform="translate(${f1(x)} ${f1(y)}) scale(${s})"><path d="M-2.6 0 C-2.8 3 -1.5 5.2 0 6.2 C1.5 5.2 2.8 3 2.6 0 Z" fill="url(#acNut)"/><path d="M-3.3 0.4 C-3.4 -2 -1.8 -3.2 0 -3.2 C1.8 -3.2 3.4 -2 3.3 0.4 C1.6 1.2 -1.6 1.2 -3.3 0.4 Z" fill="url(#acCap)"/><path class="ac-stem" stroke-width=".9" d="M0 -3 L.6 -4.6"/></g>`}
+const OAK_TREES={ // w: trunk width, top: trunk top, cy: canopy centre, crx/cry: clump spread, n: clumps, r: clump size
+  5:{w:6,top:128,cy:106,crx:16,cry:11,n:6,r:14},
+  6:{w:8.5,top:120,cy:99,crx:25,cry:15,n:8,r:16},
+  7:{w:11,top:114,cy:93,crx:33,cry:19,n:10,r:18},
+  8:{w:14,top:110,cy:87,crx:41,cry:23,n:12,r:20},
+  9:{w:17,top:106,cy:83,crx:49,cry:27,n:14,r:21},
+  10:{w:21,top:104,cy:79,crx:57,cry:30,n:16,r:22},
+  11:{w:26,top:106,cy:77,crx:63,cry:31,n:18,r:23}
 };
+function oakAcornArt(sprouting){
+  const capPath="M85.5 153 C85 144 91 138.5 100 138.5 C109 138.5 115 144 114.5 153 C108 156 92 156 85.5 153 Z";
+  let scales="";
+  for(let r=0;r<4;r++){const y=142+r*3.4, off=r%2?2.1:0;for(let x=84+off;x<116;x+=4.2)scales+=`<path class="ac-scale" stroke-width=".9" opacity=".75" d="M${x.toFixed(1)} ${y.toFixed(1)} q2.1 2.8 4.2 0"/>`}
+  const leaf=`<g transform="translate(52 182) rotate(-10) scale(1.35)"><path class="tz-d1" d="${OAK_LEAF}"/><path class="ac-rib" stroke-width=".55" opacity=".7" d="${OAK_VEIN}"/><path class="ac-rib" stroke-width="1" d="M0 0 L-3 1"/></g>`;
+  const crack=sprouting?`<path class="ac-stem" stroke-width=".7" opacity=".8" d="M101 179 L103 175 L101.5 172 L104 168"/>`:"";
+  const shoot=sprouting?`<path class="tz-shoot" stroke-width="2.2" d="M118 183 C119 176 122 171 120 166 C119 163 116 162.5 115 164.5"/>`+oakLeaf(120,166.5,-60,.32,"tz-l1")+oakLeaf(120,166.5,-125,.28,"tz-l0"):"";
+  return `${leaf}
+    <ellipse class="ac-pebble" cx="136" cy="181.5" rx="4" ry="2.4"/><ellipse class="ac-pebble" cx="143" cy="182.5" rx="2.4" ry="1.6" opacity=".8"/>
+    <ellipse class="ac-shadow" cx="102" cy="181" rx="15" ry="3.2" opacity=".55"/>
+    <g transform="translate(0 4) rotate(-12 100 168)">
+      <path d="M87.5 151 C85.5 163 90 174 100 180.5 C110 174 114.5 163 112.5 151 Z" fill="url(#acNut)"/>
+      <path class="ac-line" stroke-width=".6" opacity=".22" d="M94 155 C93 165 95 172 99 178 M100 155 L100 179 M106 155 C107 165 105 172 101 178"/>${crack}
+      <ellipse class="ac-shine" cx="93.8" cy="161" rx="1.5" ry="5" opacity=".24" transform="rotate(8 93.8 161)"/>
+      <path d="${capPath}" fill="url(#acCap)"/>
+      <g clip-path="url(#acClip)">${scales}</g>
+      <path class="ac-scale" stroke-width="1.6" opacity=".9" d="M85.6 152.8 C92 156.2 108 156.2 114.4 152.8"/>
+      <path class="ac-stem" stroke-width="3" d="M100 139.5 C100.5 135 102.5 132.5 105.5 131.5"/>
+    </g>${shoot}
+    <ellipse class="tz-soil" cx="101" cy="183" rx="14" ry="4.2"/><ellipse class="tz-soildk" cx="101" cy="182.3" rx="9" ry="1.6" opacity=".45"/>
+    <ellipse class="tz-soil" cx="118" cy="183.4" rx="5" ry="2"/>
+    <circle class="tz-soildk" cx="86" cy="182.5" r="1.1"/><circle class="tz-soildk" cx="117" cy="183" r=".9"/>`;
+}
 function oakSVG(st,health,prog){
   const sh=health==="wilt"?["d0","d1","d2"]:health==="dry"?["l0","d1","l2"]:["l0","l1","l2"];
-  const k=((0.9+0.1*Math.min(1,Math.max(0,prog)))*[2.1,2,1.6,1.3,1.08,1,0.96][st]).toFixed(3);
-  let g=`<ellipse class="tz-soil" cx="100" cy="183" rx="${40+st*9}" ry="9"/><ellipse class="tz-soildk" cx="100" cy="181" rx="${30+st*7}" ry="4" opacity=".5"/>`;
-  let t="";
-  if(st===0){
-    // a realistic acorn resting on the soil, tilted a little, with a fallen oak leaf and pebbles
-    const capPath="M85.5 153 C85 144 91 138.5 100 138.5 C109 138.5 115 144 114.5 153 C108 156 92 156 85.5 153 Z";
-    let scales="";
-    for(let r=0;r<4;r++){const y=142+r*3.4, off=r%2?2.1:0;for(let x=84+off;x<116;x+=4.2)scales+=`<path class="ac-scale" stroke-width=".9" opacity=".75" d="M${x.toFixed(1)} ${y.toFixed(1)} q2.1 2.8 4.2 0"/>`}
-    const leaf=`<g transform="translate(52 182) rotate(-10) scale(1.35)"><path class="tz-d1" d="M0 0 C2 -3 5 -2 6 -5 C8 -8 10 -4 12 -6 C14 -9 17 -5 18 -6 C21 -6 22 -3 24 0 C22 3 21 6 18 6 C17 5 14 9 12 6 C10 4 8 8 6 5 C5 2 2 3 0 0 Z"/><path class="ac-rib" stroke-width=".55" opacity=".7" d="M0 0 L23 0 M6 0 L8 -4 M12 0 L14 -5 M18 0 L19 -4 M6 0 L8 4 M12 0 L14 5 M18 0 L19 4"/><path class="ac-rib" stroke-width="1" d="M0 0 L-3 1"/></g>`;
-    t=`<defs>
-        <radialGradient id="acNut" cx="38%" cy="30%" r="75%"><stop offset="0" class="ac-s0"/><stop offset=".55" class="ac-s1"/><stop offset="1" class="ac-s2"/></radialGradient>
-        <radialGradient id="acCap" cx="40%" cy="25%" r="80%"><stop offset="0" class="cp-s0"/><stop offset=".6" class="cp-s1"/><stop offset="1" class="cp-s2"/></radialGradient>
-        <clipPath id="acClip"><path d="${capPath}"/></clipPath>
-      </defs>
-      ${leaf}
-      <ellipse class="ac-pebble" cx="136" cy="181.5" rx="4" ry="2.4"/><ellipse class="ac-pebble" cx="143" cy="182.5" rx="2.4" ry="1.6" opacity=".8"/>
-      <ellipse class="ac-shadow" cx="102" cy="181" rx="15" ry="3.2" opacity=".55"/>
-      <g transform="translate(0 4) rotate(-12 100 168)">
-        <path d="M87.5 151 C85.5 163 90 174 100 180.5 C110 174 114.5 163 112.5 151 Z" fill="url(#acNut)"/>
-        <path class="ac-line" stroke-width=".6" opacity=".22" d="M94 155 C93 165 95 172 99 178 M100 155 L100 179 M106 155 C107 165 105 172 101 178"/>
-        <circle class="ac-stem" cx="100" cy="180.6" r=".9" stroke-width="1.6"/>
-        <ellipse class="ac-shine" cx="93.8" cy="161" rx="1.5" ry="5" opacity=".24" transform="rotate(8 93.8 161)"/>
-        <path d="${capPath}" fill="url(#acCap)"/>
-        <g clip-path="url(#acClip)">${scales}</g>
-        <path class="ac-scale" stroke-width="1.6" opacity=".9" d="M85.6 152.8 C92 156.2 108 156.2 114.4 152.8"/>
-        <path class="ac-stem" stroke-width="3" d="M100 139.5 C100.5 135 102.5 132.5 105.5 131.5"/>
-      </g>
-      <ellipse class="tz-soil" cx="101" cy="183" rx="14" ry="4.2"/><ellipse class="tz-soildk" cx="101" cy="182.3" rx="9" ry="1.6" opacity=".45"/>
-      <circle class="tz-soildk" cx="86" cy="182.5" r="1.1"/><circle class="tz-soildk" cx="117" cy="183" r=".9"/>`;
-  }else if(st<=2){
-    const top=st===1?150:126;
-    t=`<path class="tz-stem" d="M100 181 Q${st===1?98:103} ${(181+top)/2} 100 ${top}"/>`;
-    const lv=st===1?[[91,152,-30,0],[109,148,30,1]]:[[90,156,-25,0],[110,150,25,1],[92,136,-30,1],[109,128,30,0]];
-    t+=lv.map(([x,y,r,c])=>`<ellipse class="tz-${sh[c]}" cx="${x}" cy="${y}" rx="${st===1?10:12}" ry="${st===1?5:6}" transform="rotate(${r} ${x} ${y})"/>`).join("");
-    if(st===1) t+=`<ellipse class="tz-cap" cx="106" cy="179" rx="6" ry="3"/>`;
-  }else{
-    const C=OAK_CAN[st], top=180-C.h, w=C.w;
-    let roots="";
-    if(st>=5) roots=`<path class="tz-root" d="M${100-w*0.6} 179 Q${100-w*1.4} 182 ${100-w*2} 184"/><path class="tz-root" d="M${100+w*0.6} 179 Q${100+w*1.4} 182 ${100+w*2} 185"/>`;
-    const trunk=`<path class="tz-bark" d="M${100-w/2-w*0.35} 181 Q${100-w/2} 170 ${100-w*0.38} ${top+12} L${100-w*0.28} ${top} L${100+w*0.28} ${top} L${100+w*0.38} ${top+12} Q${100+w/2} 170 ${100+w/2+w*0.35} 181 Z"/><path class="tz-barkdk" d="M${100+w*0.05} 178 L${100+w*0.18} ${top+16} L${100+w*0.3} ${top+16} L${100+w*0.38} 178 Z" opacity=".55"/>`;
-    const brs=C.br.map(([x1,y1,x2,y2])=>`<path class="tz-br" stroke-width="${Math.max(3,w*0.32)}" d="M${x1} ${y1} Q${(x1+x2)/2} ${Math.min(y1,y2)-2} ${x2} ${y2}"/>`).join("");
-    const drop=health==="ok"?0:health==="dry"?2:4;
-    let cs=C.c; if(health==="wilt") cs=cs.filter((_,i)=>i%4!==3);
-    const shadow=cs.map(([x,y,r])=>`<circle class="tz-shadow" cx="${x}" cy="${y+drop+4}" r="${r}"/>`).join("");
-    const leaves=cs.map(([x,y,r,c])=>`<circle class="tz-${sh[c]}" cx="${x}" cy="${y+drop}" r="${r}"/>`).join("");
-    let acorns="";
-    if(st===6&&health!=="wilt") acorns=[[70,112],[128,116],[152,96],[52,92],[112,70]].map(([x,y])=>`<ellipse class="tz-acorn" cx="${x}" cy="${y+drop}" rx="3" ry="4"/><ellipse class="tz-cap" cx="${x}" cy="${y+drop-3}" rx="3.6" ry="2"/>`).join("");
-    let fallen="";
-    if(health==="wilt") fallen=[[70,182,20],[132,184,-15],[150,181,35]].map(([x,y,r])=>`<ellipse class="tz-d1" cx="${x}" cy="${y}" rx="5" ry="2.4" transform="rotate(${r} ${x} ${y})"/>`).join("");
-    t=roots+trunk+brs+`<g class="sway">${shadow}${leaves}${acorns}</g>`+fallen;
+  const k=((0.9+0.1*Math.min(1,Math.max(0,prog)))*[2.1,2.1,2,1.6,1.25,1,1,1,1,1,1,1][st]).toFixed(3);
+  const defs=`<defs>
+    <radialGradient id="acNut" cx="38%" cy="30%" r="75%"><stop offset="0" class="ac-s0"/><stop offset=".55" class="ac-s1"/><stop offset="1" class="ac-s2"/></radialGradient>
+    <radialGradient id="acCap" cx="40%" cy="25%" r="80%"><stop offset="0" class="cp-s0"/><stop offset=".6" class="cp-s1"/><stop offset="1" class="cp-s2"/></radialGradient>
+    <clipPath id="acClip"><path d="M85.5 153 C85 144 91 138.5 100 138.5 C109 138.5 115 144 114.5 153 C108 156 92 156 85.5 153 Z"/></clipPath>
+    <radialGradient id="oakSh" cx="36%" cy="26%" r="78%"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".26"/><stop offset=".45" stop-color="#FFFFFF" stop-opacity="0"/><stop offset=".72" stop-color="#000000" stop-opacity="0"/><stop offset="1" stop-color="#000000" stop-opacity=".26"/></radialGradient>
+    <linearGradient id="oakTr" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".18"/><stop offset=".4" stop-color="#FFFFFF" stop-opacity="0"/><stop offset=".6" stop-color="#000000" stop-opacity="0"/><stop offset="1" stop-color="#000000" stop-opacity=".35"/></linearGradient>
+  </defs>`;
+  const srx=Math.min(96,40+st*5);
+  let g=`<ellipse class="tz-soil" cx="100" cy="183" rx="${srx}" ry="9"/><ellipse class="tz-soildk" cx="100" cy="181" rx="${Math.round(srx*0.72)}" ry="4" opacity=".5"/>`;
+  if(st>=2){ // grass tufts on the soil edge
+    const gr=oakRng(77+st);let tufts="";
+    [-0.86,-0.62,0.58,0.84].forEach(p=>{const x=100+p*srx,y=182+gr()*3;tufts+=`<path class="tz-grass" d="M${f1(x-3)} ${f1(y)} q1 -4 -1 -7 M${f1(x)} ${f1(y)} q0 -5 2 -9 M${f1(x+3)} ${f1(y)} q1 -3 4 -5"/>`});
+    g+=tufts;
   }
-  return `<svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMax meet" aria-hidden="true">${g}<g transform="translate(100 182) scale(${k}) translate(-100 -182)">${t}</g></svg>`;
+  let t="";
+  if(st<=1){
+    t=oakAcornArt(st===1);
+  }else if(st===2){ // sprout: two oak leaves and the empty acorn cap
+    t=`<g transform="translate(112 180) rotate(160) scale(.38) translate(-100 -147)"><path d="M85.5 153 C85 144 91 138.5 100 138.5 C109 138.5 115 144 114.5 153 C108 156 92 156 85.5 153 Z" fill="url(#acCap)"/></g>`
+     +`<g class="sway"><path class="tz-shoot" stroke-width="2.6" d="M100 182 C99 172 101.5 162 100 152"/>`
+     +oakLeaf(100,153,-152,.7,`tz-${sh[0]}`)+oakLeaf(100,152,-28,.76,`tz-${sh[1]}`)
+     +`<ellipse class="tz-${sh[2]}" cx="100" cy="150.5" rx="1.4" ry="2.4"/></g>`;
+  }else if(st===3){ // seedling: thin stem, woody at the base, five oak leaves
+    const L=[[100.6,164,-160,.62,0],[100.9,154,-22,.66,1],[100.4,144,-150,.62,1],[100.2,136,-35,.58,0],[100,129,-115,.45,1],[100,129,-62,.45,0]];
+    t=`<g class="sway"><path class="tz-shoot" stroke-width="2.6" d="M100 182 C101.5 168 101 150 100 128"/><path class="tz-br" stroke-width="2.8" d="M100 182 C100.8 177 101 174 101 171"/>`
+     +L.map(([x,y,r,s,c])=>oakLeaf(x,y,r,s,`tz-${sh[c]}`)).join("")+`<ellipse class="tz-${sh[2]}" cx="100" cy="127" rx="1.3" ry="2.2"/></g>`;
+  }else if(st===4){ // sapling: woody stem, twigs, a dozen oak leaves
+    const rnd=oakRng(404);
+    let tw="",lv="";
+    const twigs=[[100.8,150,78,132],[100.6,140,124,122],[100.3,128,84,110],[100.2,120,116,104]];
+    twigs.forEach(([x1,y1,x2,y2])=>{tw+=oakLimb(x1,y1,x2,y2,2.2,0.8,-2)});
+    const spots=[[78,132,-170],[78,132,-120],[124,122,-10],[124,122,-60],[84,110,-160],[84,110,-110],[116,104,-20],[116,104,-70],[100,98,-125],[100,98,-55],[101,162,-165],[100.8,156,-15],[90,140,-140],[112,130,-40]];
+    spots.forEach(([x,y,r],i)=>{lv+=oakLeaf(x,y,r+(rnd()*16-8),0.62+rnd()*0.14,`tz-${sh[i%3===2?2:i%2]}`)});
+    t=`<g class="sway">${oakLimb(100,182,100,98,4.6,1.2,1.5)}${tw}${lv}</g>`;
+  }else{
+    const T=OAK_TREES[st],{w,top,cy,crx,cry,n,r}=T,rnd=oakRng(1000+st*37);
+    const drop=health==="ok"?0:health==="dry"?2:4;
+    // clumps on a golden-angle spiral, biased wider than tall like an oak crown
+    let cl=[];for(let i=0;i<n;i++){const tt=Math.sqrt((i+.5)/n),a=i*2.39996+0.4;cl.push({x:100+Math.cos(a)*crx*tt,y:cy+Math.sin(a)*cry*tt+drop,r:r*(1.08-0.28*tt)*(0.88+rnd()*0.24),tt})}
+    {const mx=cl.reduce((q,c)=>q+c.x,0)/cl.length-100;cl.forEach(c=>c.x-=mx)}
+    if(health==="wilt") cl=cl.filter((_,i)=>i%4!==3);
+    // roots
+    let roots="";
+    if(st>=7){const rr=oakRng(5+st);[-1,1,-1,1].slice(0,st>=9?4:2).forEach((s,i)=>{const far=i<2?1.5:2.2;roots+=oakLimb(100+s*w*0.35,175,100+s*w*far,183.5+rr()*1.5,w*0.38,1.2,s*2*(i?1:-1),"tz-barkdk")})}
+    // trunk with flare, shading and bark furrows
+    const tp=`M${f1(100-w*1.05)} 183 Q${f1(100-w*0.5)} 180 ${f1(100-w*0.5)} 168 Q${f1(100-w*0.42)} ${f1((168+top)/2)} ${f1(100-w*0.3)} ${top} L${f1(100+w*0.3)} ${top} Q${f1(100+w*0.42)} ${f1((168+top)/2)} ${f1(100+w*0.5)} 168 Q${f1(100+w*0.5)} 180 ${f1(100+w*1.05)} 183 Z`;
+    let bark="";const nb=Math.max(2,Math.round(w/3.2)),br=oakRng(31+st);
+    for(let i=0;i<nb;i++){const fx=-0.36+0.72*(i+.5)/nb,x0=100+fx*w,y0=180-br()*4,y1=top+6+br()*10,wob=(br()-.5)*2.4;
+      bark+=`<path class="tz-furrow" stroke-width="${f1(0.6+w*0.035)}" d="M${f1(x0)} ${f1(y0)} Q${f1(x0+wob)} ${f1((y0+y1)/2)} ${f1(100+fx*w*0.62)} ${f1(y1)}"/>`}
+    let extra="";
+    if(st>=9) extra+=`<ellipse class="tz-barkdk" cx="${f1(100+w*0.12)}" cy="148" rx="${f1(w*0.1)}" ry="${f1(w*0.07)}"/><ellipse class="tz-knot" cx="${f1(100+w*0.12)}" cy="148" rx="${f1(w*0.1)}" ry="${f1(w*0.07)}"/>`;
+    if(st===11) extra+=`<ellipse class="tz-hollow" cx="${f1(100-w*0.08)}" cy="160" rx="${f1(w*0.13)}" ry="${f1(w*0.22)}"/><path class="tz-moss" d="M${f1(100-w*0.5)} 178 q${f1(w*0.15)} -6 ${f1(w*0.3)} -2 q${f1(w*0.1)} -5 ${f1(w*0.25)} 0 L${f1(100-w*0.1)} 182 Z"/>`;
+    const trunk=`<path class="tz-bark" d="${tp}"/>${bark}<path d="${tp}" fill="url(#oakTr)"/>${extra}`;
+    // main limbs out to the outer clumps
+    let limbs="";const outer=cl.filter(c=>c.tt>0.45);
+    outer.forEach((c,i)=>{const sy=top+4+(i%3)*((cy-top)<0?3:4),ex=100+(c.x-100)*0.82,ey=c.y+c.r*0.15;
+      limbs+=oakLimb(100+(c.x>100?1:-1)*w*0.12,Math.max(sy,top+2),ex,ey,Math.max(1.6,w*0.42),Math.max(0.9,w*0.09),(c.x>100?-1:1)*(4+w*0.3))});
+    cl.filter(c=>c.tt<=0.45&&c.y<top-4).forEach(c=>{limbs+=oakLimb(100,top+2,c.x,c.y+4,Math.max(1.5,w*0.3),Math.max(0.8,w*0.07),(c.x>100?-2:2))});
+    // back canopy: darker, slightly larger, gives depth
+    const back=cl.map(c=>`<path class="tz-${sh[2]}" d="${oakBlob(c.x,c.y+4,c.r*1.14,c.r*1.04,9,rnd)}"/>`).join("");
+    // front clumps, bottom first so the sunlit top ones overlap
+    const order=[...cl].filter((_,i)=>i%5!==4||st<7).sort((a,b)=>b.y-a.y);
+    let front="";
+    order.forEach(c=>{
+      const col=c.y<cy-cry*0.2?sh[1]:c.y>cy+cry*0.35?sh[2]:sh[0],d=oakBlob(c.x,c.y,c.r,c.r*0.9,10,rnd);
+      let tex="";for(let j=0;j<5;j++){const a=rnd()*Math.PI*2,q=Math.sqrt(rnd())*0.7,x=c.x+Math.cos(a)*c.r*q,y=c.y+Math.sin(a)*c.r*0.9*q;
+        tex+=`<path class="${y<c.y?"tz-lit":"tz-tex"}" d="M${f1(x-2.4)} ${f1(y)} q2.4 ${y<c.y?-2.6:2.6} 4.8 0"/>`}
+      front+=`<path class="tz-${col}" d="${d}"/><path d="${d}" fill="url(#oakSh)"/>${tex}`;
+    });
+    let acorns="";
+    if(st>=10&&health!=="wilt"){const ar=oakRng(9+st);cl.filter(c=>c.tt>0.4).slice(0,st===11?9:6).forEach(c=>{acorns+=oakAcornSmall(c.x+(ar()-.5)*c.r*0.9,c.y+c.r*(0.25+ar()*0.4),0.95)})}
+    let ground="";
+    ground+=`<ellipse class="tz-soildk" cx="100" cy="182" rx="${f1(crx+r*0.6)}" ry="3.6" opacity=".35"/>`;
+    if(st===11) ground+=[[100+w*1.2,182.5,1.7],[100+w*1.6,183.5,1.2],[100-w*1.35,183.5,1.4]].map(([x,y,s])=>`<g transform="translate(${f1(x)} ${y}) scale(${s})"><path class="tz-mush" d="M-1.2 0 L-1 -5 L1 -5 L1.2 0 Z"/><path class="tz-mcap" d="M-4.5 -4.6 Q0 -10.5 4.5 -4.6 Z"/><circle class="tz-mush" cx="-1.4" cy="-6.8" r=".7"/><circle class="tz-mush" cx="1.6" cy="-6" r=".55"/></g>`).join("");
+    if(st>=8&&health==="ok") ground+=oakLeaf(100-crx-6,183.5,-8,.42,"tz-d1")+oakLeaf(100+crx*0.7,184,170,.38,"tz-d0");
+    if(health==="wilt") ground+=[[100-crx*0.8,183,-12],[100+crx*0.5,184,168],[100+crx*0.95,182.5,20],[100-crx*0.3,184.5,190]].map(([x,y,r])=>oakLeaf(x,y,r,.45,"tz-d1")).join("");
+    t=ground+roots+`<g class="sway">${back}${limbs}${trunk}${front}${acorns}</g>`;
+  }
+  return `<svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMax meet" aria-hidden="true">${defs}${g}<g transform="translate(100 182) scale(${k}) translate(-100 -182)">${t}</g></svg>`;
 }
 function renderToday(){
   if(!$("oakArt")) return;
@@ -1461,9 +1539,9 @@ function renderToday(){
   rows.forEach(r=>{const b=document.createElement("button");b.type="button";b.className="trow"+(r.ok?" ok":"");b.dataset.go=r.go;if(r.sub)b.dataset.sub=r.sub;
     const tt=document.createElement("b");tt.textContent=(r.ok?"✓ ":"")+r.title;const dd=document.createElement("span");dd.className="d";dd.textContent=r.d;
     const pp=document.createElement("span");pp.className="pts num";pp.textContent=r.pts;b.append(tt,pp,dd);list.append(b)});
-  let prev=null; try{prev=localStorage.getItem("ppl.oakStage")}catch(e){}
+  let prev=null; try{prev=localStorage.getItem("ppl.oakStage2")}catch(e){}
   if(prev!==null&&o.stage>+prev){toast(`Your oak grew into a ${OAK[o.stage].n}!`);oakGrewAt=Date.now()}
-  try{localStorage.setItem("ppl.oakStage",String(o.stage))}catch(e){}
+  try{localStorage.setItem("ppl.oakStage2",String(o.stage))}catch(e){}
 }
 // ---- Backup: one tap opens the share sheet (Save to Files / iCloud Drive); weekly reminder on Today ----
 const BK_KEY="ppl.lastBackup", BK_SNOOZE="ppl.backupSnooze";
