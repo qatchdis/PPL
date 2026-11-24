@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#EDF1EC" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0E120F" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -314,9 +316,6 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .pet-msg{font-size:.88rem}
 .bar{height:8px;border-radius:99px;background:var(--bg);overflow:hidden}
 .bar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .5s}
-.o-body{fill:var(--owl)}.o-dark{fill:var(--owl-dark)}.o-belly{fill:var(--owl-belly)}.o-eye{fill:var(--eye)}.o-pupil{fill:#1B1410}
-.o-beak{fill:var(--beak)}.o-egg{fill:var(--egg)}.o-spot{fill:var(--egg-spot)}.o-line{stroke:var(--owl-dark);stroke-width:2;fill:none;stroke-linecap:round}
-.o-lid{stroke:#1B1410;stroke-width:2.6;fill:none;stroke-linecap:round}.o-metal{fill:var(--muted)}.o-band{fill:var(--accent)}.o-glow{fill:var(--accent);opacity:.14}
 @keyframes hop{0%,100%{transform:translateY(0)}35%{transform:translateY(-9px)}60%{transform:translateY(0)}75%{transform:translateY(-3px)}}
 @keyframes wobble{0%,100%{transform:rotate(0)}25%{transform:rotate(-6deg)}75%{transform:rotate(6deg)}}
 .hop{animation:hop .7s ease}
@@ -708,7 +707,7 @@ function figSVG(id,label){
   return `<svg class="fig" viewBox="0 0 120 90" role="img" aria-label="${label} illustration">${f.m}${f.b.map(poly).join("")}<circle class="head" cx="${f.h[0]}" cy="${f.h[1]}" r="6.5"/><path class="arr" d="${d}"/><polygon class="tip" points="${tip}"/></svg>`;
 }
 const ORDER = ["push","pull","legs"];
-const APP_VERSION="2.11";
+const APP_VERSION="2.12";
 // ---- To-do: one-off tasks on Today ----
 const TD_KEY="ppl.todos.v1";
 let todos=[];
@@ -772,10 +771,9 @@ const LS_KEY = "ppl.sessions.v1";
 const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 
 let sessions = {};      // id -> session
-let mode = "local";     // "local" | "db"
-let col = null;         // db collection ref
 let current = null;     // selected day key
 const $ = id => document.getElementById(id);
+const esc = v => String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
 
 function iso(d){const z=new Date(d.getTime()-d.getTimezoneOffset()*60000);return z.toISOString().slice(0,10)}
 const TODAY = iso(new Date());
@@ -787,22 +785,7 @@ const sid = day => TODAY+"_"+day;
 function loadLocal(){try{return JSON.parse(localStorage.getItem(LS_KEY)||"{}")||{}}catch(e){return {}}}
 function saveLocal(){try{localStorage.setItem(LS_KEY,JSON.stringify(sessions))}catch(e){}}
 
-const timers = {};
-function persist(s){
-  sessions[s.id]=s; saveLocal();
-  if(mode!=="db"||!col) return;
-  clearTimeout(timers[s.id]);
-  timers[s.id]=setTimeout(()=>writeDoc(s),700);
-}
-const writing = {};
-async function writeDoc(s){
-  if(writing[s.id]){writing[s.id].again=true;return}
-  writing[s.id]={again:false};
-  try{await col.doc(s.id).set(JSON.parse(JSON.stringify(s)))}
-  catch(e){ if(e&&e.code==="quota_exceeded") toast("Storage is full. Delete old sessions to keep saving."); else setNote("Couldn't sync just now. Saved on this device."); }
-  const again=writing[s.id].again; delete writing[s.id];
-  if(again) writeDoc(sessions[s.id]);
-}
+function persist(s){sessions[s.id]=s;saveLocal()}
 
 // A session counts once you log anything in it (a checked set, or weight + reps you entered), or tap Finish.
 function isLogged(s){return !!s&&(!!s.done||(!!s.touched&&Object.values(s.sets||{}).flat().some(x=>x.ok||(x.w!==""&&x.r!==""))))}
@@ -853,7 +836,7 @@ function renderHeader(){
     const gym=doneList().find(s=>s.date===date), act=actOn(date)[0], done=gym||act;
     const planned=SCHEDULE[(i+1)%7];
     const t=gym?PLAN[gym.day].name:act?ACT_NAME[act.type]:(planned?PLAN[planned].name:(i===6?"Rest":"Walk"));
-    return `<div class="wd${date===TODAY?" today":""}${done?" done":""}"><span class="d">${n}</span><span class="t">${t}</span></div>`;
+    return `<div class="wd${date===TODAY?" today":""}${done?" done":""}"><span class="d">${n}</span><span class="t">${esc(t)}</span></div>`;
   }).join("");
 }
 
@@ -874,12 +857,12 @@ function renderSession(){
   st.className="pill"+(s.done?" ok":"");
   $("exercises").innerHTML=PLAN[current].ex.map(ex=>{
     const prev=lastFor(current,ex.id,s.id);
-    const lastTxt=prev&&prev.some(x=>x.w!==""||x.r!=="")?`Last time: ${prev[0].w||"?"} lb × ${setsSummary(prev)}`:"First time: pick a weight where the last 2 reps feel hard";
+    const lastTxt=prev&&prev.some(x=>x.w!==""||x.r!=="")?`Last time: ${esc(prev[0].w||"?")} lb × ${esc(setsSummary(prev))}`:"First time: pick a weight where the last 2 reps feel hard";
     const rows=s.sets[ex.id].map((x,i)=>`
       <div class="set">
         <span class="n">${i+1}</span>
-        <label class="field"><input id="w-${ex.id}-${i}" inputmode="decimal" type="number" min="0" step="2.5" placeholder="0" value="${x.w}" data-ex="${ex.id}" data-i="${i}" data-k="w" aria-label="${ex.name} set ${i+1} weight"><span>lb</span></label>
-        <label class="field"><input id="r-${ex.id}-${i}" inputmode="numeric" type="number" min="0" step="1" placeholder="${ex.reps}" value="${x.r}" data-ex="${ex.id}" data-i="${i}" data-k="r" aria-label="${ex.name} set ${i+1} reps"><span>reps</span></label>
+        <label class="field"><input id="w-${ex.id}-${i}" inputmode="decimal" type="number" min="0" step="2.5" placeholder="0" value="${esc(x.w)}" data-ex="${ex.id}" data-i="${i}" data-k="w" aria-label="${ex.name} set ${i+1} weight"><span>lb</span></label>
+        <label class="field"><input id="r-${ex.id}-${i}" inputmode="numeric" type="number" min="0" step="1" placeholder="${ex.reps}" value="${esc(x.r)}" data-ex="${ex.id}" data-i="${i}" data-k="r" aria-label="${ex.name} set ${i+1} reps"><span>reps</span></label>
         <button class="chk" aria-pressed="${x.ok}" data-ex="${ex.id}" data-i="${i}" aria-label="Mark set ${i+1} done">${CHECK}</button>
       </div>`).join("");
     const yt="https://www.youtube.com/results?search_query="+encodeURIComponent(ex.name.replace(/\(.*\)/,"")+" proper form");
@@ -898,7 +881,7 @@ function renderHistory(){
     const all=Object.values(s.sets||{}).flat();
     const vol=all.reduce((a,x)=>a+(parseFloat(x.w)||0)*(parseInt(x.r)||0),0);
     const n=all.filter(x=>x.ok).length;
-    return `<div class="hrow"><div><b>${PLAN[s.day]?PLAN[s.day].name:s.day}</b> <span class="note">${fmtDate(s.date)}</span></div><span class="note num">${n} sets</span><span class="num">${vol?Math.round(vol).toLocaleString()+" lb":"—"}</span></div>`;
+    return `<div class="hrow"><div><b>${esc(PLAN[s.day]?PLAN[s.day].name:s.day)}</b> <span class="note">${esc(fmtDate(s.date))}</span></div><span class="note num">${n} sets</span><span class="num">${vol?Math.round(vol).toLocaleString()+" lb":"—"}</span></div>`;
   }).join("");
 }
 
@@ -923,9 +906,9 @@ function renderCal(){
       const d=addDays(w,i), done=byDate[d], inMonth=d.slice(0,7)===calMonth, act=!done&&actOn(d)[0];
       const plan=SCHEDULE[(i+1)%7]&&d>=TODAY&&!done;
       const day=done?done[0].day:"";
-      const cls=["day",inMonth?"":"out",d===TODAY?"today":"",plan&&!act?"plan":"",done?"done "+day:act?"done "+act.type:"",stretchDays.includes(d)?"st":""].join(" ");
+      const cls=["day",inMonth?"":"out",d===TODAY?"today":"",plan&&!act?"plan":"",done?"done "+esc(day):act?"done "+esc(act.type):"",stretchDays.includes(d)?"st":""].join(" ");
       const label=done?`${fmtDate(d)}: ${done.map(x=>PLAN[x.day]?PLAN[x.day].name:x.day).join(" + ")}`:act?`${fmtDate(d)}: ${ACT_NAME[act.type]}${act.dist?" "+act.dist+" mi":""}`:fmtDate(d);
-      html+=`<div class="${cls}" title="${label}" aria-label="${label}"><span>${+d.slice(8)}</span>${done?`<span class="tag">${PLAN[day]?PLAN[day].name:""}</span>`:act?`<span class="tag">${ACT_NAME[act.type]}</span>`:""}</div>`;
+      html+=`<div class="${cls}" title="${esc(label)}" aria-label="${esc(label)}"><span>${+d.slice(8)}</span>${done?`<span class="tag">${PLAN[day]?PLAN[day].name:""}</span>`:act?`<span class="tag">${esc(ACT_NAME[act.type])}</span>`:""}</div>`;
     }
     const c=weekCount(w), past=w<=TODAY;
     html+=`<div class="wk${c>=3?" hit":""}">${past?Math.min(c,9)+"/3":""}</div>`;
@@ -938,11 +921,6 @@ function renderCal(){
   $("tMonth").textContent=doneList().filter(s=>s.date.slice(0,7)===TODAY.slice(0,7)).length;
 }
 function shiftMonth(n){const [y,m]=calMonth.split("-").map(Number);const d=new Date(y,m-1+n,1);calMonth=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;renderCal()}
-// ---- Owl pet: grows with the streak (days in a row staying on 3-a-week pace) ----
-const STAGES=[{n:"Egg",d:0},{n:"Hatchling",d:1},{n:"Owlet",d:7},{n:"Young owl",d:21},{n:"Grown owl",d:42},{n:"Legend",d:90}];
-const PET_KEY="ppl.pet.v1";
-let pet={name:"Rivet"};
-try{const v=JSON.parse(localStorage.getItem(PET_KEY)||"null");if(v&&v.name)pet=v}catch(e){}
 function daysBetween(a,b){return Math.round((new Date(b+"T12:00:00")-new Date(a+"T12:00:00"))/864e5)}
 function streakDays(){
   const mon=mondayOf(TODAY);
@@ -952,60 +930,6 @@ function streakDays(){
   if(!pool.length) return 0;
   const first=pool.map(s=>s.date).sort()[0];
   return daysBetween(first,TODAY)+1;
-}
-function stageOf(days){let i=0;STAGES.forEach((s,k)=>{if(days>=s.d)i=k});return i}
-function owlSVG(stage,mood){
-  if(stage===0){
-    return `<svg viewBox="0 0 100 100"><g class="wob"><ellipse class="o-egg" cx="50" cy="58" rx="24" ry="30"/><circle class="o-spot" cx="42" cy="48" r="3.5"/><circle class="o-spot" cx="58" cy="60" r="4.5"/><circle class="o-spot" cx="45" cy="72" r="2.5"/><circle class="o-spot" cx="60" cy="42" r="2"/></g></svg>`;
-  }
-  const sc=[0,.6,.74,.86,.94,1][stage];
-  const perch=stage>=4;
-  const base=perch?84:92;
-  let eyes;
-  if(mood==="happy") eyes=`<path class="o-lid" d="M33 39 Q40 31 47 39"/><path class="o-lid" d="M53 39 Q60 31 67 39"/>`;
-  else if(mood==="rest") eyes=`<circle class="o-eye" cx="40" cy="38" r="9"/><circle class="o-eye" cx="60" cy="38" r="9"/><circle class="o-pupil" cx="40" cy="40" r="4"/><circle class="o-pupil" cx="60" cy="40" r="4"/><path class="o-body" d="M30 38 A10 10 0 0 1 50 38 Z M50 38 A10 10 0 0 1 70 38 Z"/><path class="o-lid" d="M31 38 H49 M51 38 H69"/>`;
-  else eyes=`<circle class="o-eye" cx="40" cy="38" r="9"/><circle class="o-eye" cx="60" cy="38" r="9"/><circle class="o-pupil" cx="41" cy="38" r="4.5"/><circle class="o-pupil" cx="61" cy="38" r="4.5"/><circle class="o-eye" cx="42.5" cy="36.5" r="1.4"/><circle class="o-eye" cx="62.5" cy="36.5" r="1.4"/>`;
-  const tufts=stage>=2?`<path class="o-body" d="M28 26 L30 10 L42 20 Z"/><path class="o-body" d="M72 26 L70 10 L58 20 Z"/>`:`<path class="o-line" d="M46 14 Q48 9 50 13 Q52 8 54 14"/>`;
-  const wings=stage>=2?`<ellipse class="o-dark" cx="22" cy="62" rx="8" ry="18" transform="rotate(12 22 62)"/><ellipse class="o-dark" cx="78" cy="62" rx="8" ry="18" transform="rotate(-12 78 62)"/>`:"";
-  const chev=stage>=3?`<path class="o-line" d="M44 62 L47 65 L50 62 L53 65 L56 62 M42 70 L45 73 L48 70 L51 73 L54 70 L57 73 M45 78 L48 81 L51 78 L54 81"/>`:"";
-  const shell=stage===1?`<path class="o-egg" d="M18 74 L26 68 L33 75 L41 67 L50 75 L59 67 L67 75 L74 68 L82 74 L80 86 Q50 100 20 86 Z"/>`:"";
-  const band=stage>=5?`<rect class="o-band" x="27" y="22" width="46" height="7" rx="3.5"/>`:"";
-  const owl=`<g transform="translate(50 ${base}) scale(${sc}) translate(-50 -92)">
-    ${wings}<ellipse class="o-body" cx="50" cy="62" rx="30" ry="30"/><ellipse class="o-body" cx="50" cy="38" rx="27" ry="22"/>${tufts}
-    <ellipse class="o-belly" cx="50" cy="69" rx="17" ry="20"/>${chev}${band}${eyes}<path class="o-beak" d="M46 45 H54 L50 52 Z"/>
-    <ellipse class="o-beak" cx="42" cy="91" rx="5" ry="2.6"/><ellipse class="o-beak" cx="58" cy="91" rx="5" ry="2.6"/>${shell}</g>`;
-  const glow=stage>=5?`<circle class="o-glow" cx="50" cy="52" r="46"/>`:"";
-  const db=perch?`<rect class="o-metal" x="14" y="84" width="72" height="4" rx="2"/><rect class="o-metal" x="10" y="76" width="7" height="20" rx="2"/><rect class="o-metal" x="83" y="76" width="7" height="20" rx="2"/><rect class="o-metal" x="4" y="79" width="6" height="14" rx="2"/><rect class="o-metal" x="90" y="79" width="6" height="14" rx="2"/>`:"";
-  return `<svg viewBox="0 0 100 100">${glow}${db}${owl}</svg>`;
-}
-function petMood(){
-  const doneToday=doneList().some(s=>s.date===TODAY);
-  if(doneToday) return "happy";
-  const sched=SCHEDULE[new Date(TODAY+"T12:00:00").getDay()];
-  return sched?"ready":"rest";
-}
-let editingName=false;
-function renderPet(){if(!$("petArt"))return;
-  const days=streakDays(), st=stageOf(days), mood=petMood(), nm=pet.name||"Rivet";
-  $("petArt").innerHTML=owlSVG(st,mood);
-  $("petStage").textContent=STAGES[st].n+(days?` · Day ${days}`:"");
-  if(!editingName) $("petNameRow").innerHTML=`<b></b><button class="rename" id="renameBtn">Rename</button>`, $("petNameRow").querySelector("b").textContent=nm;
-  const next=STAGES[st+1];
-  let msg;
-  if(st===0) msg="Log a workout to hatch your owl.";
-  else if(mood==="happy") msg=`${nm} is pumped. Workout logged!`;
-  else if(mood==="ready") msg=`It's ${PLAN[nextDay()].name} day. ${nm} is waiting on you.`;
-  else msg=`Rest day. ${nm} is recovering too.`;
-  $("petMsg").textContent=msg;
-  if(next){
-    const span=next.d-STAGES[st].d, prog=days-STAGES[st].d;
-    $("petBar").style.width=Math.max(4,Math.round(prog/span*100))+"%";
-    $("petNext").textContent=st===0?"Hatches after your first workout":`${next.d-days} day${next.d-days===1?"":"s"} until ${next.n}`;
-  }else{$("petBar").style.width="100%";$("petNext").textContent="Max level. Keep the streak alive."}
-}
-function savePet(){
-  try{localStorage.setItem(PET_KEY,JSON.stringify(pet))}catch(e){}
-  if(mode==="db"&&col) col.doc("pet").set({name:pet.name}).catch(()=>{});
 }
 // ---- Goals: the reset plan as a checklist ----
 const GOALS_KEY="ppl.goals.v1";
@@ -1556,7 +1480,7 @@ function renderBackup(){
   if(due) $("bkNudgeText").textContent=last?`It's been ${days} days. One tap, then choose Save to Files and pick iCloud Drive.`:"You haven't backed up yet. One tap, then choose Save to Files and pick iCloud Drive.";
 }
 async function doBackup(){
-  const data={app:"oak",version:2,exported:new Date().toISOString(),sessions,pet,goals:goalState,stretchDays,acts,todos,daily:{tpls:dyTpls,days:dyDays,dayTpl:dyDayTpl},reminders:rem};
+  const data={app:"oak",version:2,exported:new Date().toISOString(),sessions,goals:goalState,stretchDays,acts,todos,daily:{tpls:dyTpls,days:dyDays,dayTpl:dyDayTpl},reminders:rem};
   const name=`oak-backup-${iso(new Date())}.json`, text=JSON.stringify(data,null,1);
   const done=()=>{lsSet(BK_KEY,String(Date.now()));renderBackup();toast("Backup saved")};
   try{
@@ -1602,7 +1526,7 @@ function renderTodos(){
   const D=$("tdDone"); D.replaceChildren(); D.hidden=!tdShowDone||!done.length;
   if(tdShowDone) done.forEach(t=>D.append(tdRow(t)));
 }
-function renderAll(){if($("appVer"))$("appVer").textContent=APP_VERSION;renderToday();renderTodos();renderBackup();renderStretchRem();renderNudge();renderReminders();renderHeader();renderPet();renderTabs();renderSession();renderHistory();renderCal();if(!$("view-goals").hidden)renderGoals()}
+function renderAll(){if($("appVer"))$("appVer").textContent=APP_VERSION;renderToday();renderTodos();renderBackup();renderStretchRem();renderNudge();renderReminders();renderHeader();renderTabs();renderSession();renderHistory();renderCal();if(!$("view-goals").hidden)renderGoals()}
 
 let tt;function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2200)}
 function setNote(m){$("syncNote").textContent=m}
@@ -1895,8 +1819,18 @@ $("bkLater").addEventListener("click",()=>{lsSet(BK_SNOOZE,String(Date.now()+864
 $("importFile").addEventListener("change",async e=>{
   const f=e.target.files[0]; if(!f) return;
   try{
+    if(f.size>5e6) throw 0;
     const d=JSON.parse(await f.text());
-    if(!d||typeof d.sessions!=="object") throw 0;
+    if(!d||typeof d.sessions!=="object"||Array.isArray(d.sessions)) throw 0;
+    const isDate=v=>typeof v==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(v), num=v=>v===""||v==null?"":(isFinite(+v)?String(+v):""), str=(v,n=120)=>typeof v==="string"?v.slice(0,n):"";
+    const cleanSess={};
+    Object.entries(d.sessions).forEach(([id,x])=>{if(!x||typeof x!=="object"||!isDate(x.date)||!PLAN[x.day])return;const sets={};
+      Object.entries(x.sets||{}).forEach(([k,arr])=>{if(Array.isArray(arr))sets[str(k,40)]=arr.slice(0,12).map(y=>({w:num(y&&y.w),r:num(y&&y.r),ok:!!(y&&y.ok)}))});
+      cleanSess[str(id,60)]={...x,id:str(id,60),date:x.date,day:x.day,sets,cardio:!!x.cardio}});
+    d.sessions=cleanSess;
+    if(Array.isArray(d.acts)) d.acts=d.acts.filter(a=>a&&typeof a.id==="string"&&ACT_NAME[a.type]&&isDate(a.date)).map(a=>({...a,id:str(a.id,60),name:str(a.name),dist:num(a.dist),mins:num(a.mins),elev:num(a.elev),note:str(a.note,300)}));
+    if(Array.isArray(d.stretchDays)) d.stretchDays=d.stretchDays.filter(isDate);
+    if(Array.isArray(d.todos)) d.todos=d.todos.map(t=>t&&typeof t.text==="string"?{...t,text:t.text.slice(0,120)}:null).filter(Boolean);
     sessions=Object.assign({},sessions,d.sessions); saveLocal();
     if(d.daily&&typeof d.daily==="object"){if(Array.isArray(d.daily.tpls)&&d.daily.tpls.length)dyTpls=d.daily.tpls;else if(Array.isArray(d.daily.tpl))dyTpls=dyFromOld(d.daily.tpl);dyTplSel=dyTpls[0].id;if(d.daily.dayTpl&&typeof d.daily.dayTpl==="object")dyDayTpl=Object.assign({},dyDayTpl,d.daily.dayTpl);if(d.daily.days&&typeof d.daily.days==="object")dyDays=Object.assign({},dyDays,d.daily.days);saveDaily()}
     if(Array.isArray(d.todos)){const ids=new Set(todos.map(t=>t.id));todos=todos.concat(d.todos.filter(t=>t&&t.id&&typeof t.text==="string"&&!ids.has(t.id)));saveTodos()}
@@ -1904,9 +1838,8 @@ $("importFile").addEventListener("change",async e=>{
     if(Array.isArray(d.stretchDays)){stretchDays=[...new Set([...stretchDays,...d.stretchDays])].sort();saveStretch()}
     if(d.goals&&typeof d.goals==="object"){goalState=Object.assign({},goalState,d.goals);saveGoals()}
     if(d.reminders&&typeof d.reminders==="object"&&Array.isArray(d.reminders.days)){rem=Object.assign(rem,d.reminders);saveRem()}
-    if(d.pet&&d.pet.name){pet=d.pet;try{localStorage.setItem(PET_KEY,JSON.stringify(pet))}catch(_){}}
-    current=nextDay(); renderAll(); toast(`Restored ${Object.keys(d.sessions).length} sessions`);
-  }catch(_){toast("That file isn't a Push Pull Legs backup")}
+    current=nextDay(); renderAll(); toast(`Backup restored`);
+  }catch(_){toast("That file isn't an Oak backup")}
   e.target.value="";
 });
 </script>
